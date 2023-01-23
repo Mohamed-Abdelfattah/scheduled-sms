@@ -28,6 +28,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f6aa709a-7978-4f73-927c-00a6fe4ea273"
+      }
+    },
+    "owner": "mogamaldev"
   }
 }

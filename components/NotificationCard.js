@@ -11,25 +11,27 @@ function NotificationCard({ data }) {
 
   return (
     <Card variant={variant}>
-      <View style={styles.header}>
-        <MaterialCommunityIcons
-          name={icon}
-          size={24}
-          color={colors[variant].fill}
-        />
-        <Text
-          style={{
-            marginStart: 5,
-            fontSize: 24,
-            fontWeight: 'bold',
-            lineHeight: 30,
-            color: colors[variant].fill,
-          }}
-        >
-          {NotificationTitle}
-        </Text>
+      <View style={{ flex: 1, justifyContent: 'space-between' }}>
+        <View style={styles.header}>
+          <MaterialCommunityIcons
+            name={icon}
+            size={20}
+            color={colors[variant].fill}
+          />
+          <Text
+            style={{
+              marginStart: 5,
+              fontSize: 20,
+              fontWeight: 'bold',
+              lineHeight: 25,
+              color: colors[variant].fill,
+            }}
+          >
+            {NotificationTitle}
+          </Text>
+        </View>
+        <Description variant={variant} data={data} />
       </View>
-      <Description variant={variant} data={data} />
     </Card>
   );
 }
@@ -39,17 +41,18 @@ export default NotificationCard;
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'flex-end',
+    // flex: 1,
   },
 
   text: {
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: 14,
+    lineHeight: 16,
   },
 
   heading: {
-    fontSize: 18,
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 20,
   },
 
   bold: {
@@ -91,21 +94,28 @@ const Description = ({ variant, data }) => {
   };
 
   const styleText = {
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: 14,
+    lineHeight: 18,
     color: colors[variant].fill,
   };
 
   if (variant === 'success')
     return (
       <>
-        <Text style={[styleText, styles.heading]}>
-          <Text style={styles.bold}>{data.messageTitle}</Text> was sent
-          successfully
-        </Text>
-        <Hr color={colors[variant].border} marginV={8} />
-        <Text style={styleText}>Sent on: {data.sentOn}</Text>
-        <Text style={styleText}>To: {msgInfo.contactName}</Text>
+        <View
+        // style={{ flex: 1 }}
+        >
+          <Text style={[styleText, styles.heading]}>
+            <Text style={styles.bold}>{data.messageTitle}</Text> was sent
+            successfully
+          </Text>
+        </View>
+
+        <View style={{ flex: 0.1 }}>
+          <Hr color={colors[variant].border} marginV={8} />
+          <Text style={styleText}>Sent on: {data.sentOn}</Text>
+          <Text style={styleText}>To: {msgInfo.contactName}</Text>
+        </View>
       </>
     );
 

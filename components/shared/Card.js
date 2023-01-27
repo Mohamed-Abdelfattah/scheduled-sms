@@ -1,4 +1,4 @@
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Pressable } from 'react-native';
 
 export default function Card({ variant = 'blank', children }) {
   return (
@@ -11,24 +11,34 @@ export default function Card({ variant = 'blank', children }) {
         },
       ]}
     >
-      {children}
+      <Pressable
+        style={{ backgroundColor: 'pink', flex: 1, padding: 5 }}
+        onPress={() => {
+          console.log('pressed on card');
+        }}
+      >
+        {children}
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    minHeight: 175,
+    // minHeight: 175,
     width: 275,
-    padding: 5,
+    // padding: 5,
     margin: 10,
     borderWidth: 2,
     borderRadius: 6,
     elevation: 3,
-    shadowOffset: { height: 0, width: 0 },
+    shadowOffset: { width: 0, height: 2 },
     shadowColor: '#333',
     shadowOpacity: 0.3,
     shadowRadius: 5,
+    overflow: 'hidden',
+    // flex: 1,
+    // justifyContent: 'space-between',
   },
 });
 

@@ -9,11 +9,16 @@ import {
   ScrollView,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import MessagesScreen from './pages/MessagesScreen';
 import NotificationCard from './components/NotificationCard';
 import ButtonPrimaryOutline from './components/shared/Button';
 import Hr from './components/shared/Hr';
 import MessageCard from './components/MessageCard';
+import NewMessageScreen from './pages/NewMessageScreen';
+import MessageDetailsScreen from './pages/MessageDetailsScreen';
 
 const notificationsFake = [
   {
@@ -103,53 +108,92 @@ const messagesFake = [
   },
 ];
 
+const Stack = createNativeStackNavigator();
+
+const HomeScreen = ({ navigation }) => {
+  // also useNavigation hook can be used in any component to get the navigation object
+  // const navigation = useNavigation();
+
+  return (
+    <ScrollView>
+      {/* <View style={styles.appContainer}> */}
+      {/* <View style={styles.header}></View> */}
+      <StatusBar style="auto" />
+
+      <View>
+        <View style={styles.heading}>
+          <Text style={styles.headingText}>Notifications</Text>
+          <ButtonPrimaryOutline label="More" icon="message-bookmark" />
+        </View>
+        <FlatList
+          data={notificationsFake}
+          renderItem={(itemData) => {
+            return <NotificationCard data={itemData.item} />;
+          }}
+          // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
+          // checked on devTools ... id is used by default
+          // keyExtractor={(item, index) => item.messageTitle}
+          horizontal
+        />
+      </View>
+
+      <Hr marginV={10} color="#333" marginH={5} />
+
+      <View style={styles.messages}>
+        <View style={styles.heading}>
+          <Text style={styles.headingText}>Messages</Text>
+          <View style={{ flexDirection: 'row' }}>
+            <ButtonPrimaryOutline
+              label="ADD"
+              icon="message-plus"
+              onPress={() => {
+                // console.log('button was pressed ');
+                navigation.navigate('New Message');
+              }}
+            />
+            <ButtonPrimaryOutline
+              label="MORE"
+              icon="message-bookmark"
+              onPress={() => {
+                console.log('button was pressed ');
+                navigation.navigate('Messages');
+              }}
+            />
+          </View>
+        </View>
+        <FlatList
+          data={messagesFake}
+          renderItem={MessageCard}
+          // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
+          keyExtractor={(item, index) => item.id}
+          horizontal
+        />
+      </View>
+
+      <View style={styles.logs}></View>
+
+      <View style={styles.navigation}></View>
+      {/* </View> */}
+    </ScrollView>
+  );
+};
+
 export default function App() {
   return (
-    <SafeAreaView style={styles.appContainer}>
-      <ScrollView>
-        {/* <View style={styles.appContainer}> */}
-        {/* <View style={styles.header}></View> */}
-        <StatusBar style="auto" />
-
-        <View>
-          <View style={styles.heading}>
-            <Text style={styles.headingText}>Notifications</Text>
-            <ButtonPrimaryOutline label="More" icon="message-bookmark" />
-          </View>
-          <FlatList
-            data={notificationsFake}
-            renderItem={(itemData) => {
-              return <NotificationCard data={itemData.item} />;
-            }}
-            // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
-            keyExtractor={(item, index) => item.id}
-            horizontal
-          />
-        </View>
-
-        <Hr marginV={10} color="#333" marginH={5} />
-
-        <View style={styles.messages}>
-          <View style={styles.heading}>
-            <Text style={styles.headingText}>Messages</Text>
-            <ButtonPrimaryOutline label="MORE" icon="message-bookmark" />
-            <ButtonPrimaryOutline label="ADD" icon="message-draw" />
-          </View>
-          <FlatList
-            data={messagesFake}
-            renderItem={(itemData) => <MessageCard message={itemData.item} />}
-            // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
-            keyExtractor={(item, index) => item.id}
-            horizontal
-          />
-        </View>
-
-        <View style={styles.logs}></View>
-
-        <View style={styles.navigation}></View>
-        {/* </View> */}
-      </ScrollView>
-    </SafeAreaView>
+    <NavigationContainer>
+      {/* <SafeAreaView style={styles.appContainer}> */}
+      <Stack.Navigator screenOptions={{ headerTitleAlign: 'center' }}>
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{ title: 'Overview' }}
+        />
+        <Stack.Screen name="Messages" component={MessagesScreen} />
+        <Stack.Screen name="New Message" component={NewMessageScreen} />
+        <Stack.Screen name="Message Details" component={MessageDetailsScreen} />
+      </Stack.Navigator>
+      {/* </SafeAreaView> */}
+    </NavigationContainer>
   );
 }
 
@@ -162,11 +206,12 @@ const styles = StyleSheet.create({
   heading: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'baseline',
+    // flex: 1,
   },
 
   headingText: {
-    fontSize: 28,
+    fontSize: 22,
     textTransform: 'uppercase',
     margin: 5,
     marginVertical: 10,

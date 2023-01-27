@@ -3,21 +3,21 @@ import Card from './shared/Card';
 import { View, Text } from 'react-native';
 import Hr from './shared/Hr';
 
-function MessageCard({ message }) {
-  //   console.log(message.to);
+function MessageCard({ item }) {
+  //   console.log(item.to);
   return (
     <Card>
       <View>
-        <Text>{message.title}</Text>
-        <Text>{message.content}</Text>
+        <Text>{item.title}</Text>
+        <Text>{item.content}</Text>
         <Hr />
         <Text>
           Sending To:{' '}
-          {message.to.map(function (contact, index) {
+          {item.to.map(function (contact, index) {
             if (index === this.length - 1)
               return `${contact.name}(${contact.number})`;
             return `${contact.name}(${contact.number}), `;
-          }, message.to)}
+          }, item.to)}
         </Text>
       </View>
     </Card>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useCallback, useState, useEffect, useContext } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,193 +7,192 @@ import {
   Text,
   Pressable,
   ScrollView,
+  Button,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  TabActions,
+  useNavigation,
+} from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Provider as PaperProvider } from 'react-native-paper';
 
 import MessagesScreen from './pages/MessagesScreen';
-import NotificationCard from './components/NotificationCard';
-import ButtonPrimaryOutline from './components/shared/Button';
-import Hr from './components/shared/Hr';
-import MessageCard from './components/MessageCard';
 import NewMessageScreen from './pages/NewMessageScreen';
 import MessageDetailsScreen from './pages/MessageDetailsScreen';
+import Events from './pages/Events';
+import Settings from './pages/Settings';
+import HomeScreen from './pages/HomeScreen';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { init } from './store/database';
+import * as SplashScreen from 'expo-splash-screen';
+import GlobalContextProvider, { useAppStateContext } from './store/context';
+import { theme } from './utils/theme';
 
-const notificationsFake = [
-  {
-    id: 'notification-1',
-    messageId: 'message-1',
-    messageTitle: 'Message Title - 1',
-    sentOn: 'dateOfSendingAttempt-1',
-    state: 'success',
-  },
-  {
-    id: 'notification-2',
-    messageId: 'message-2',
-    messageTitle: 'Message Title - 2',
-    sentOn: 'dateOfSendingAttempt-2',
-    state: 'fail',
-  },
-  {
-    id: 'notification-3',
-    messageId: 'message-3',
-    messageTitle: 'Message Title - 3',
-    sentOn: 'dateOfSendingAttempt-3',
-    state: 'inProgress',
-  },
-  {
-    id: 'notification-4',
-    messageId: 'message-4',
-    messageTitle: 'Message Title - 4',
-    sentOn: 'dateOfSendingAttempt-4',
-    state: 'scheduled',
-  },
-  {
-    id: 'notification-5',
-    messageId: 'message-5',
-    messageTitle: 'Message Title - 5',
-    sentOn: 'dateOfSendingAttempt-5',
-    state: 'success',
-  },
-];
-
-const messagesFake = [
-  {
-    id: 'message-1',
-    title: 'title-1',
-    content:
-      'content-1 -- content-1 -- content-1 -- content-1 -- content-1 -- content-1',
-    to: [{ name: 'contactName-1', number: 'contactNumber-1' }],
-    rules: { scheduledOn: 'date-1', repeat: 'boolean' },
-  },
-  {
-    id: 'message-2',
-    title: 'title-2',
-    content:
-      'content-2 -- content-2 -- content-2 -- content-2 -- content-2 -- content-2',
-    to: [{ name: 'contactName-2', number: 'contactNumber-2' }],
-    rules: { scheduledOn: 'date-2', repeat: 'boolean' },
-  },
-  {
-    id: 'message-3',
-    title: 'title-3',
-    content:
-      'content-3 -- content-3 -- content-3 -- content-3 -- content-3 -- content-3',
-    to: [
-      { name: 'contactName-3', number: 'contactNumber-3' },
-      { name: 'contactName-3', number: 'contactNumber-3' },
-      { name: 'contactName-3', number: 'contactNumber-3' },
-    ],
-    rules: { scheduledOn: 'date-3', repeat: 'boolean' },
-  },
-  {
-    id: 'message-4',
-    title: 'title-4',
-    content:
-      'content-4 -- content-4 -- content-4 -- content-4 -- content-4 -- content-4',
-    to: [
-      { name: 'contactName-4', number: 'contactNumber-4' },
-      { name: 'contactName-4', number: 'contactNumber-4' },
-    ],
-    rules: { scheduledOn: 'date-4', repeat: 'boolean' },
-  },
-  {
-    id: 'message-5',
-    title: 'title-5',
-    content:
-      'content-5 -- content-5 -- content-5 -- content-5 -- content-5 -- content-5',
-    to: [{ name: 'contactName-5', number: 'contactNumber-5' }],
-    rules: { scheduledOn: 'date-5', repeat: 'boolean' },
-  },
-];
-
+const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
-
-const HomeScreen = ({ navigation }) => {
-  // also useNavigation hook can be used in any component to get the navigation object
-  // const navigation = useNavigation();
-
-  return (
-    <ScrollView>
-      {/* <View style={styles.appContainer}> */}
-      {/* <View style={styles.header}></View> */}
-      <StatusBar style="auto" />
-
-      <View>
-        <View style={styles.heading}>
-          <Text style={styles.headingText}>Notifications</Text>
-          <ButtonPrimaryOutline label="More" icon="message-bookmark" />
-        </View>
-        <FlatList
-          data={notificationsFake}
-          renderItem={(itemData) => {
-            return <NotificationCard data={itemData.item} />;
-          }}
-          // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
-          // checked on devTools ... id is used by default
-          // keyExtractor={(item, index) => item.messageTitle}
-          horizontal
-        />
-      </View>
-
-      <Hr marginV={10} color="#333" marginH={5} />
-
-      <View style={styles.messages}>
-        <View style={styles.heading}>
-          <Text style={styles.headingText}>Messages</Text>
-          <View style={{ flexDirection: 'row' }}>
-            <ButtonPrimaryOutline
-              label="ADD"
-              icon="message-plus"
-              onPress={() => {
-                // console.log('button was pressed ');
-                navigation.navigate('New Message');
-              }}
-            />
-            <ButtonPrimaryOutline
-              label="MORE"
-              icon="message-bookmark"
-              onPress={() => {
-                console.log('button was pressed ');
-                navigation.navigate('Messages');
-              }}
-            />
-          </View>
-        </View>
-        <FlatList
-          data={messagesFake}
-          renderItem={MessageCard}
-          // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
-          keyExtractor={(item, index) => item.id}
-          horizontal
-        />
-      </View>
-
-      <View style={styles.logs}></View>
-
-      <View style={styles.navigation}></View>
-      {/* </View> */}
-    </ScrollView>
-  );
-};
+const TopTab = createMaterialTopTabNavigator();
+// to ensure that splash screen will be kept visible until hideAsync() got called when finishing loading all the assets and fetching data and rendering a component
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  //
+  return (
+    <GlobalContextProvider>
+      <PaperProvider theme={theme}>
+        <AppWithContext />
+      </PaperProvider>
+    </GlobalContextProvider>
+  );
+}
+
+function AppWithContext() {
+  // should move loading state to the reducer
+  const [status, setStatus] = useState('');
+  const {
+    state,
+    initializeApp,
+    createNewMessage,
+    editMessageHandler,
+    updateEventHandler,
+  } = useAppStateContext();
+  console.log('@App -- state =', state);
+
+  useEffect(() => {
+    // initialize the database tables with the base tables structure
+    // no need to await as
+    console.log('@useEffect @AppWithContext @App --- for initializing');
+    initializeApp().then((res) => {
+      console.log(
+        '@useEffect @AppWithContext @App --- for initializing --- finished initializing and will hide splash'
+      );
+      SplashScreen.hideAsync();
+    });
+  }, []);
+
+  // const onLayoutRootView = useCallback(async () => {
+  //   console.log('@onLayoutRootView --- before checking status ---', status);
+  //   if (status === 'success') {
+  //     console.log('@onLayoutRootView --- checking status ---', status);
+  //     await SplashScreen.hideAsync();
+  //   }
+  // }, [status]);
+
+  // neither <View onLayout> nor <NavigationContainer onReady> works with onLayoutView so using useEffect to monitor status and hide the splash screen when needed (discord's expo advice)
+  // useEffect(() => {
+  //   if (state.status === 'success' || state.status === 'error') {
+  //     SplashScreen.hideAsync();
+  //   }
+  // }, [state.status]);
+
+  // console.log('status ===', status);
+
+  if (state.status === 'error') {
+    console.log('@AppWithContext @App --- rendering --- error =', state.error);
+    return (
+      <View>
+        <Text>
+          Something went wrong! Try restarting the App or contacting support
+        </Text>
+        <Text>{state.error}</Text>
+      </View>
+    );
+  }
+
+  console.log('@AppWithContext @App --- rendering ');
   return (
     <NavigationContainer>
       {/* <SafeAreaView style={styles.appContainer}> */}
-      <Stack.Navigator screenOptions={{ headerTitleAlign: 'center' }}>
-        <Stack.Screen
+      <Tab.Navigator
+        screenOptions={{
+          tabBarStyle: {
+            // height: '8%',
+            paddingBottom: 5,
+            paddingTop: 5,
+          },
+          headerTitleAlign: 'center',
+          headerStyle: {
+            backgroundColor: '#add1e3',
+          },
+        }}
+      >
+        <Tab.Screen
           name="Home"
           component={HomeScreen}
-          options={{ title: 'Overview' }}
+          options={{
+            title: 'Home',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="home" size={size} color={color} />
+            ),
+          }}
         />
-        <Stack.Screen name="Messages" component={MessagesScreen} />
-        <Stack.Screen name="New Message" component={NewMessageScreen} />
-        <Stack.Screen name="Message Details" component={MessageDetailsScreen} />
-      </Stack.Navigator>
+        <Tab.Screen
+          name="Messages"
+          component={MessagesStackScreen}
+          options={({ route, navigation }) => ({
+            // headerTitle: getFocusedRouteNameFromRoute(route),
+            // headerShown: false,
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="view-list" size={size} color={color} />
+            ),
+          })}
+        />
+        <Tab.Screen
+          name="Events"
+          component={Events}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="event" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Settings"
+          component={Settings}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="settings" size={size} color={color} />
+            ),
+          }}
+        />
+      </Tab.Navigator>
       {/* </SafeAreaView> */}
     </NavigationContainer>
+  );
+}
+
+function MessagesStackScreen({ navigation }) {
+  //
+  return (
+    // <>
+    <Stack.Navigator
+      screenOptions={{
+        headerBackTitle: 'Messages',
+        headerTitleAlign: 'center',
+        headerBackVisible: true,
+      }}
+    >
+      <Stack.Screen
+        name="Messages List"
+        component={MessagesScreen}
+        options={{ headerTitle: 'Messages', headerShown: false }}
+      />
+      <Stack.Screen name="New Message" component={NewMessageScreen} />
+      <Stack.Screen
+        name="Message Details"
+        component={MessageDetailsScreen}
+        options={({ route, navigation }) => {
+          const { title } = route.params;
+          return { headerTitle: title };
+        }}
+      />
+    </Stack.Navigator>
+    // </>
   );
 }
 

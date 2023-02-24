@@ -1,6 +1,6 @@
 import { View, StyleSheet, Text, Pressable } from 'react-native';
 
-export default function Card({ variant = 'blank', children }) {
+export default function Card({ variant = 'blank', children, onPress }) {
   return (
     <View
       style={[
@@ -11,12 +11,7 @@ export default function Card({ variant = 'blank', children }) {
         },
       ]}
     >
-      <Pressable
-        style={{ backgroundColor: 'pink', flex: 1, padding: 5 }}
-        onPress={() => {
-          console.log('pressed on card');
-        }}
-      >
+      <Pressable style={{ flex: 1, padding: 5 }} onPress={onPress}>
         {children}
       </Pressable>
     </View>

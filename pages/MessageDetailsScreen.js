@@ -1,10 +1,12 @@
 import { View, Text } from 'react-native';
-import React from 'react';
 
-export default function MessageDetailsScreen() {
+export default function MessageDetailsScreen({ route }) {
+  const { id } = route.params;
+
   return (
     <View>
       <Text>MessageDetailsScreen</Text>
+      <Text>{id}</Text>
     </View>
   );
 }

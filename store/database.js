@@ -66,7 +66,8 @@ export function createEventsTable() {
           id INTEGER PRIMARY KEY NOT NULL,
           state TEXT,
           sentOn TEXT,
-          messageId INTEGER
+          messageId INTEGER,
+          notificationId TEXT
         )`,
         [],
         () => {
@@ -83,13 +84,19 @@ export function createEventsTable() {
 }
 
 export function addMessage(message) {
-  const { title, content, rules, recipients } = message;
+  const { title, content, rules, recipients, sendingDate } = message;
 
   const promise = new Promise((resolve, reject) => {
     database.transaction((tx) => {
       tx.executeSql(
-        `INSERT INTO messages (title, content, recipients, rules) VALUES (?, ?, ?, ?)`,
-        [title, content, JSON.stringify(recipients), JSON.stringify(rules)],
+        `INSERT INTO messages (title, content, recipients, rules, sendingDate) VALUES (?, ?, ?, ?, ?)`,
+        [
+          title,
+          content,
+          JSON.stringify(recipients),
+          JSON.stringify(rules),
+          sendingDate.toString(),
+        ],
         (_, result) => {
           console.log('@db inserting message --- success', result.insertId);
           resolve(result.insertId);
@@ -143,12 +150,12 @@ export function editMessage(messageId, newMessage) {
 }
 
 // in case of a new message or a resend (repeat sending message) a new event should be added, the event will convert to success in case the user pressed on the notification and got was directed to the phone's send message interface
-export function addEvent(messageId, sendingDate) {
+export function addEvent(messageId, sendingDate, notificationId) {
   const promise = new Promise((resolve, reject) => {
     database.transaction((tx) => {
       tx.executeSql(
-        `INSERT INTO events (state, messageId, sentOn) VALUES ('scheduled', ?, ?)`,
-        [+messageId, sendingDate],
+        `INSERT INTO events (state, messageId, sentOn, notificationId) VALUES ('scheduled', ?, ?, ?)`,
+        [+messageId, sendingDate.toString(), JSON.stringify(notificationId)],
         (_, result) => {
           console.log('@db inserting events --- success', result);
           resolve(result);
@@ -165,12 +172,12 @@ export function addEvent(messageId, sendingDate) {
 }
 
 /**to change the sending date of an upcoming event */
-export function editEvent(eventId, newSendingDate) {
+export function editEvent(eventId, newSendingDate, newNotificationId) {
   const promise = new Promise((resolve, reject) => {
     database.transaction((tx) => {
       tx.executeSql(
-        `UPDATE events SET sentOn = ? WHERE id = ?`,
-        [newSendingDate, eventId],
+        `UPDATE events SET sentOn = ?, notificationId = ? WHERE id = ?`,
+        [newSendingDate.toString(), JSON.stringify(newNotificationId), eventId],
         (_, result) => {
           console.log('@db editing events --- success', result);
           resolve(result);
@@ -186,19 +193,140 @@ export function editEvent(eventId, newSendingDate) {
   return promise;
 }
 
-/**to change the event state into success, fail or warning -- will accept id to update specific event and the new state to update the event with */
-export function updateEvent(eventId, newState) {
+// /**to change the event state into success, fail or warning -- will accept id to update specific event and the new state to update the event with */
+// export function updateEvent({
+//   waning = [],
+//   warning2Hours = [],
+//   warning1Day = [],
+//   success = [],
+//   failure = [],
+// }) {
+//   const sql = `UPDATE events SET state =
+//     CASE
+//       ${waning.length ? `WHEN id IN (${waning.toString()}) THEN 'waning'` : ''}
+//       ${
+//         warning2Hours.length
+//           ? `WHEN id IN (${warning2Hours.toString()}) THEN 'warning2Hours'`
+//           : ''
+//       }
+//       ${
+//         warning1Day.length
+//           ? `WHEN id IN (${warning1Day.toString()}) THEN 'warning1Day'`
+//           : ''
+//       }
+//       ${
+//         success.length
+//           ? `WHEN id IN (${success.toString()}) THEN 'success'`
+//           : ''
+//       }
+//       ${
+//         failure.length
+//           ? `WHEN id IN (${failure.toString()}) THEN 'failure'`
+//           : ''
+//       }
+//     END
+//     WHERE id IN ?;
+//   `;
+/**to change the event state into success, fail or warning -- will accept an object containing a key of the newState to be updated into and value of an array of eventIds to be updated  */
+export function updateEvent(updates) {
+  let sql = 'UPDATE events SET state = CASE ';
+  const listOfIdsToBeUpdated = [];
+  for (const [key, value] of Object.entries(updates)) {
+    // if the list of ids to be updated isn't empty
+    if (value.length) {
+      sql += `WHEN id IN (${value.toString()}) THEN "${key}" `;
+    }
+    listOfIdsToBeUpdated.push(...value);
+  }
+  // end the sql statement
+  sql += `END WHERE id IN (${listOfIdsToBeUpdated.toString()});`;
+
+  console.log(
+    '@db updating events --- constructed sql =',
+    sql,
+    'listOfIdsToBeUpdated',
+    listOfIdsToBeUpdated
+  );
+
+  // if there are no ids to be updated
+  if (!listOfIdsToBeUpdated.length) {
+    return Promise.resolve('***** No Events to be updated *****');
+  }
+
   const promise = new Promise((resolve, reject) => {
     database.transaction((tx) => {
       tx.executeSql(
-        `UPDATE events SET state = ? WHERE id = ?`,
-        [newState, eventId],
+        sql,
+        [],
         (_, result) => {
           console.log('@db updating events --- success', result);
           resolve(result);
         },
         (_, error) => {
           console.log('@db updating events --- error', error);
+          reject(error);
+        }
+      );
+    });
+  });
+
+  return promise;
+}
+
+export function deleteMessage({ deleteAll, messageId }) {
+  const sqlStatement = deleteAll
+    ? 'DELETE FROM messages'
+    : `DELETE FROM messages WHERE id = ${messageId}`;
+
+  const promise = new Promise((resolve, reject) => {
+    database.transaction((tx) => {
+      tx.executeSql(
+        sqlStatement,
+        [],
+        (_, result) => {
+          console.log('@db deleting message --- success', result);
+          resolve(result);
+        },
+        (_, error) => {
+          console.log('@db deleting message --- error', error);
+          reject(error);
+        }
+      );
+    });
+  });
+
+  return promise;
+}
+
+export function deleteEvent({ deleteAll, deleteAllUpcoming = false, eventId }) {
+  const sqlStatement = deleteAll
+    ? 'DELETE FROM events'
+    : deleteAllUpcoming
+    ? `DELETE FROM events WHERE state NOT IN ("success", "failure")`
+    : eventId !== undefined
+    ? `DELETE FROM events WHERE id = ${eventId}`
+    : null;
+
+  if (!sqlStatement) {
+    console.log(
+      "@db @deleteEvent -- the function was called to delete an event but the id passed was undefined meaning that the event mostly have been deleted already and thus the function won't query a delete but will just resolve with no errors "
+    );
+    return new Promise((resolve, reject) => {
+      resolve('this event was deleted before already!');
+    });
+  }
+
+  const promise = new Promise((resolve, reject) => {
+    database.transaction((tx) => {
+      tx.executeSql(
+        sqlStatement,
+        [],
+        (_, result) => {
+          console.log('@db deleting event --- success', result);
+          resolve(result);
+        },
+        (_, error) => {
+          console.log('@db deleting event --- error', error);
           reject(error);
         }
       );
@@ -252,6 +380,7 @@ export function getMessages() {
             for (const record of messages) {
               record.recipients = JSON.parse(record.recipients);
               record.rules = JSON.parse(record.rules);
+              record.sendingDate = new Date(record.sendingDate);
             }
           }
 
@@ -280,8 +409,16 @@ export function getEvents() {
             '@db --- fetching events --- results',
             results.rows._array
           );
-          // should resolve with a format that can be accessed later to populate the state
-          resolve({ events: results.rows._array });
+          // should resolve with a format that can be accessed later to populate the state .. {messages:[{...messageData},{}]}
+          const events = results.rows._array;
+          // the events will have a recipients and rules columns which are JSON and so they need to be parsed before resolving the data
+          if (events.length) {
+            for (const record of events) {
+              record.notificationId = JSON.parse(record.notificationId);
+              record.sentOn = new Date(record.sentOn);
+            }
+          }
+          resolve({ events });
         },
         (_, error) => {
           console.log('@db --- fetching events --- error', error);

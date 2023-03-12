@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const MessageCard = ({ item }) => {
   const navigation = useNavigation();
-  const { id, title, content, to } = item;
+  const { id, title, content, recipients } = item;
 
   // show spinner while using useEffect to fetch message info a but here all the data will
   // be fetched locally from db upon app initialization and get populated into the global state management (context api)
@@ -31,12 +31,12 @@ const MessageCard = ({ item }) => {
         <Hr />
         <Text>
           Sending To:{' '}
-          {to?.length > 0 ? (
-            to.map(function (contact, index) {
+          {recipients?.length > 0 ? (
+            recipients.map(function (contact, index) {
               if (index === this.length - 1)
                 return `${contact.name}(${contact.number})`;
               return `${contact.name}(${contact.number}), `;
-            }, to)
+            }, recipients)
           ) : (
             <Text>No contacts were added</Text>
           )}

@@ -5,10 +5,13 @@ import NotificationCard from '../components/NotificationCard';
 import MessageCard from '../components/MessageCard';
 import Hr from '../components/shared/Hr';
 import { CommonActions, StackActions } from '@react-navigation/native';
+import { useAppStateContext } from '../store/context';
+import MessageCardPaper from '../components/MessagesScreen/MessageCardPaper';
 
 export default function HomeScreen({ navigation }) {
   // also useNavigation hook can be used in any component to get the navigation object
   // const navigation = useNavigation();
+  const { state } = useAppStateContext();
 
   return (
     <ScrollView>
@@ -64,10 +67,11 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
         <FlatList
-          data={messagesFake}
+          data={state.messages}
+          contentContainerStyle={{ paddingHorizontal: 15, paddingVertical: 20 }}
           // renderItem={MessageCard}
           // won't be able to use hooks (useNavigation) as it should be called in a react component not a function the above won't work
-          renderItem={(itemData) => <MessageCard item={itemData.item} />}
+          renderItem={(itemData) => <MessageCardPaper item={itemData.item} />}
           // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
           keyExtractor={(item, index) => item.id}
           horizontal

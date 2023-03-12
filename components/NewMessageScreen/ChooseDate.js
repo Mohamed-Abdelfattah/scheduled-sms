@@ -50,6 +50,7 @@ export default function ChooseDate({}) {
   const selectedDate = state.messageFormData.sendingDate
     ? new Date(state.messageFormData.sendingDate)
     : new Date();
+  selectedDate.setUTCSeconds(0);
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -116,8 +117,8 @@ export default function ChooseDate({}) {
     // // newTime.setUTCSeconds(time.getUTCSeconds());
     // newTime.setUTCMinutes(time.getUTCMinutes());
     // newTime.setUTCHours(time.getUTCHours());
-    selectedDate.setUTCMinutes(time.getUTCMinutes());
     selectedDate.setUTCHours(time.getUTCHours());
+    selectedDate.setUTCMinutes(time.getUTCMinutes());
 
     saveChanges({ sendingDate: selectedDate });
 
@@ -143,6 +144,7 @@ export default function ChooseDate({}) {
         onCancel={hideDatePicker}
         minimumDate={new Date()}
         date={selectedDate}
+        themeVariant="light"
       />
       <DateTimePickerModal
         isVisible={isTimePickerVisible}
@@ -151,6 +153,9 @@ export default function ChooseDate({}) {
         onCancel={hideTimePicker}
         minimumDate={new Date()}
         date={selectedDate}
+        // modalStyleIOS={}
+        // isDarkModeEnabled
+        themeVariant="light"
       />
     </View>
   );

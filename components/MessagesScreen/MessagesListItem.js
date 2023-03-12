@@ -9,11 +9,13 @@ import {
 } from 'react-native-paper';
 import React from 'react';
 import Hr from '../shared/Hr';
+import { useAppStateContext } from '../../store/context';
 // import { theme } from '../utils/theme';
 
-const Actions = (props) => {
+const Actions = ({ id }) => {
   //
   const theme = useTheme();
+  const { deleteMessageHandler } = useAppStateContext();
 
   return (
     <Surface
@@ -35,13 +37,16 @@ const Actions = (props) => {
         onPress={() => console.log('Pressed')}
       />
       <FAB
-        color={theme.colors.error}
-        style={{ backgroundColor: theme.colors.errorContainer }}
+        color={theme.colors.onError}
+        style={{ backgroundColor: theme.colors.error }}
         size="small"
         mode="flat"
         icon="delete-forever-outline"
         //    style={styles.fab}
-        onPress={() => console.log('Pressed')}
+        onPress={() => {
+          console.log('delete card pressed');
+          deleteMessageHandler({ id });
+        }}
       />
     </Surface>
   );
@@ -58,18 +63,30 @@ const MessagesListItem = ({ message }) => {
       }, '')
     : 'No contacts were selected';
 
+  const rules = message?.rules?.repeat
+    ? `To be sent every ${message.rules.repeatEvery}`
+    : 'To be sent once';
+
+  const date =
+    message?.sendingDate.toString() === 'Invalid Date'
+      ? 'No Date was specified'
+      : message.sendingDate.toString();
+
   console.log('rendering MessagesListItem component');
 
   return (
     <Card
       //   mode="outlined"
       style={{
-        width: '85%',
-        margin: 20,
+        width: '92%',
+        // marginHorizontal: 20,
+        marginRight: 'auto',
+        marginLeft: 'auto',
+        marginVertical: 10,
         // backgroundColor: theme.colors.primary,
       }}
       onPress={() => {
-        console.log('card pressed');
+        console.log('card  pressed');
       }}
     >
       {/* <Card.Title
@@ -89,7 +106,8 @@ const MessagesListItem = ({ message }) => {
         <Text style={{ flex: 1 }} variant="titleLarge">
           {message.title}
         </Text>
-        <Actions />
+
+        <Actions id={message.id} />
       </Card.Content>
 
       <Card.Content>
@@ -103,7 +121,22 @@ const MessagesListItem = ({ message }) => {
         <Divider style={{ marginTop: 10, marginBottom: 8 }} />
 
         <Text variant="bodyLarge">Recipients: </Text>
-        <Text variant="bodyMedium">{recipients}</Text>
+        <Text variant="bodyMedium">
+          {'  '}
+          {recipients}
+        </Text>
+
+        <Text variant="bodyLarge">Rules:</Text>
+        <Text>
+          {'  '}
+          {rules}
+        </Text>
+
+        <Text variant="bodyLarge">On:</Text>
+        <Text>
+          {'  '}
+          {date}
+        </Text>
       </Card.Content>
 
       {/* <Card.Actions>

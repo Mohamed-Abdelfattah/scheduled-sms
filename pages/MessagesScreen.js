@@ -1,31 +1,40 @@
+import React, { useState, useRef, useEffect } from 'react';
+
 import {
   ActivityIndicator,
   Animated,
+  FlatList,
   ScrollView,
-  Text,
   View,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { useState, useRef, useEffect } from 'react';
 import { getMessages } from '../store/database';
 import { useAppStateContext } from '../store/context';
 import MessageCard from '../components/MessageCard';
 import MessagesListItem from '../components/MessagesScreen/MessagesListItem';
-import { AnimatedFAB, Button, FAB, useTheme } from 'react-native-paper';
+import {
+  AnimatedFAB,
+  Button,
+  Card,
+  Text,
+  FAB,
+  useTheme,
+} from 'react-native-paper';
+import EmptyComponent from '../components/MessagesScreen/ListEmptyComponent';
 
 let count = 0;
 function MessagesScreen({ navigation, route }) {
   //
   const { state } = useAppStateContext();
-  const [isExtended, setIsExtended] = useState(true);
+  const [isExtended, setIsExtended] = useState(false);
 
   const isFocused = useIsFocused();
   // console.log('messagesScreen --- 2 ', route.params);
   const { navigate, setParams } = navigation;
 
   const theme = useTheme();
-  console.log('+++++++++++++++++++++++++', theme.colors);
+  // console.log('+++++++++++++++++++++++++', theme.colors);
   // const { backgroundColor, borderColor, textColor } =
   //   theme.colors.button.contained;
 
@@ -51,22 +60,18 @@ function MessagesScreen({ navigation, route }) {
         },
       });
     }
+
+    // // to get the AnimatedFAB extended when FlatList is empty
+    // if (state?.messages?.length === 0) {
+    //   setIsExtended(true);
+    // }
   }, [isFocused]);
-
-  const onScroll = ({ nativeEvent }) => {
-    const currentScrollPosition =
-      Math.floor(nativeEvent?.contentOffset?.y) ?? 0;
-
-    setIsExtended(currentScrollPosition <= 0);
-  };
 
   console.log(
     'rendering messageScreen -- count =',
     count,
     '---- navigateTo =',
     route.params?.navigateTo,
-    // '---- status =',
-    // status,
     '---- state =',
     state
   );
@@ -88,41 +93,75 @@ function MessagesScreen({ navigation, route }) {
 
   return (
     //   <StatusBar style="auto" />
-    <View style={{ flex: 1 }}>
-      <ScrollView
-        contentContainerStyle={{
-          // flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          paddingVertical: 20,
-        }}
-        onScroll={onScroll}
-        onScrollEndDrag={() => {}}
-      >
-        <Text>MessagesScreen - {count}</Text>
-        <Text>state.status - {state?.status}</Text>
-        {state.messages.map((message) => (
-          <MessagesListItem key={message.id} message={message} />
-        ))}
+    <View style={{ flex: 1, alignItems: 'center' }}>
+      <FlatList
+        data={state.messages}
+        renderItem={({ item }) => <MessagesListItem message={item} />}
+        // contentContainerStyle={{ justifyContent: 'center' }}
+        ListHeaderComponent={
+          <>
+            <Text>MessagesScreen - {count}</Text>
+            <Text>state.status - {state?.status}</Text>
+          </>
+        }
+        ListEmptyComponent={EmptyComponent}
+        ListHeaderComponentStyle={{ alignItems: 'center' }}
+        ListFooterComponent={
+          <View style={{ paddingVertical: 20, alignItems: 'center' }}>
+            <FAB
+              label="Add Message"
+              icon={'plus'}
+              onPress={function () {
+                console.log(
+                  'Add Message pressed - will navigate to new messages screen'
+                );
 
-        <Text style={{ padding: 5 }}>No More messages</Text>
-      </ScrollView>
+                navigate('Messages', { screen: 'New Message' });
+                // navigate('New Message');
+              }}
+            />
+            {/* <AnimatedFAB
+              label="Add Message"
+              icon={'plus'}
+              extended={true}
+              // extended={isExtended}
+              // animateFrom="left"
+              // iconMode="static"
+              onPress={() => {
+                console.log(
+                  'Add Message pressed - will navigate to new messages screen'
+                );
+                navigate('Messages', { screen: 'New Message' });
+                // navigate('New Message');
+              }}
+            /> */}
+          </View>
+        }
+        // onScrollBeginDrag={() => setIsExtended(false)}
+        // onEndReached={() => setIsExtended(true)}
+      />
 
-      <AnimatedFAB
+      {/* <AnimatedFAB
         style={{
           position: 'absolute',
           left: 10,
           bottom: 10,
-          backgroundColor: theme.colors.primary,
+          // backgroundColor: theme.colors.primary,
         }}
-        color="white"
+        // color="white"
         icon={'plus'}
         label={'Add Message'}
         extended={isExtended}
-        onPress={() => console.log('Pressed')}
+        onPress={() => {
+          console.log(
+            'Add Message pressed - will navigate to new messages screen'
+          );
+          navigate('Messages', { screen: 'New Message' });
+          // navigate('New Message');
+        }}
         animateFrom={'left'}
         iconMode={'dynamic'}
-        // variant="secondary"
+        variant="secondary"
       />
 
       <AnimatedFAB
@@ -130,49 +169,21 @@ function MessagesScreen({ navigation, route }) {
           position: 'absolute',
           right: 10,
           bottom: 10,
-          backgroundColor: `rgba(${theme.colors.error},0.2)`,
+          backgroundColor: theme.colors.error,
         }}
-        color="white"
+        color={theme.colors.onError}
         icon={'delete'}
         label={'Delete All'}
         extended={isExtended}
-        onPress={() => console.log('Pressed')}
+        onPress={() => {
+          console.log('Pressed');
+          deleteMessageHandler({ deleteAll: true });
+        }}
         // visible={visible}
         animateFrom={'right'}
         iconMode={'dynamic'}
         // variant="secondary"
-      />
-
-      {/* <View
-        style={{
-          flexDirection: 'row',
-          padding: 5,
-          justifyContent: 'space-evenly',
-        }}
-      >
-        <Button
-          mode="contained"
-          icon="plus"
-          uppercase
-          contentStyle={{ padding: 3 }}
-          onPress={() => {
-            console.log('Add Message pressed');
-          }}
-        >
-          Add Message
-        </Button>
-        <Button
-          mode="contained"
-          icon="delete"
-          uppercase
-          contentStyle={{ padding: 3 }}
-          onPress={() => {
-            console.log('delete all pressed');
-          }}
-        >
-          Delete All
-        </Button>
-      </View> */}
+      /> */}
     </View>
   );
 }

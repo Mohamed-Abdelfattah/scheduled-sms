@@ -8,7 +8,6 @@ export default function Rules() {
   const [every, setEvery] = useState('');
 
   const { state, saveChanges } = useAppStateContext();
-  const { rules: currentRules } = state.messageFormData;
   const { repeat, repeatEvery } = state.messageFormData.rules;
 
   return (
@@ -107,6 +106,18 @@ export default function Rules() {
               onValueChange={(value) =>
                 saveChanges({
                   rules: { repeat: true, repeatEvery: '6-months' },
+                })
+              }
+            />
+          </View>
+          <View style={{ alignItems: 'center' }}>
+            <Text>year</Text>
+            <Checkbox
+              disabled={!repeat}
+              value={repeatEvery === 'year'}
+              onValueChange={(value) =>
+                saveChanges({
+                  rules: { repeat: true, repeatEvery: 'year' },
                 })
               }
             />

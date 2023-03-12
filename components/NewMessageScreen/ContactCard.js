@@ -46,8 +46,8 @@ export default function ContactCard({ data, closeModal }) {
             style={({ pressed }) => [
               {
                 flex: 1,
-                padding: 7,
-                paddingBottom: 5,
+                padding: 10,
+                paddingBottom: 10,
               },
               pressed
                 ? { backgroundColor: '#ebebeb' }

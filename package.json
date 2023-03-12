@@ -20,7 +20,7 @@
     "expo": "~47.0.12",
     "expo-checkbox": "~2.2.2",
     "expo-contacts": "~11.0.1",
-    "expo-linking": "~3.3.0",
+    "expo-linking": "~3.3.1",
     "expo-notifications": "~0.17.0",
     "expo-sms": "~11.0.0",
     "expo-splash-screen": "~0.17.5",
@@ -34,10 +34,13 @@
     "react-native-safe-area-context": "4.4.1",
     "react-native-screens": "~3.18.0",
     "react-native-select-contact": "^1.6.3",
-    "react-native-tab-view": "^3.3.4"
+    "react-native-tab-view": "^3.3.4",
+    "expo-dev-client": "~2.0.1",
+    "@react-native-masked-view/masked-view": "0.2.8"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9"
+    "@babel/core": "^7.12.9",
+    "@types/react-native": "^0.70.5"
   },
   "private": true
 }

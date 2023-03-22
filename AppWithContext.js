@@ -1,4 +1,10 @@
-import React, { useCallback, useState, useEffect, useContext } from 'react';
+import React, {
+  useCallback,
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+} from 'react';
 import {
   View,
   StyleSheet,
@@ -17,8 +23,7 @@ import {
 } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import {
   Provider as PaperProvider,
   useTheme,
@@ -29,7 +34,7 @@ import * as Notifications from 'expo-notifications';
 import * as SMS from 'expo-sms';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MessagesScreen from './pages/MessagesScreen';
 import NewMessageScreen from './pages/NewMessageScreen';
 import MessageDetailsScreen from './pages/MessageDetailsScreen';
@@ -38,7 +43,9 @@ import Settings from './pages/Settings';
 import HomeScreen from './pages/HomeScreen';
 import GlobalContextProvider, { useAppStateContext } from './store/context';
 import { PreferencesContext } from './utils/theme';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
+const MaterialBottomTab = createMaterialBottomTabNavigator();
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const TopTab = createMaterialTopTabNavigator();
@@ -58,6 +65,7 @@ export default function AppWithContext() {
   } = useAppStateContext();
   console.log('@App -- state =', state);
   const theme = useTheme();
+
   // using useEffect to initialize the app because restoring data from db is async and if called it outside the component (in the App file directly) then after all the sync code runs the async code will run but we need the app component get rerendered after the data gets fetched and state populated - also I'm relaying on the context as a global state store and to access the functions that handles the state we need to do it from inside a component that is managed by react -
   useEffect(() => {
     async function startApp() {
@@ -192,93 +200,247 @@ export default function AppWithContext() {
   return (
     <>
       {/* <SafeAreaView style={styles.appContainer}> */}
-      <Tab.Navigator
+      <TopTab.Navigator
+        // sceneContainerStyle={{ paddingBottom: 40 }}
+        tabBarPosition="bottom"
         screenOptions={{
-          tabBarActiveTintColor: theme.colors.onPrimary,
-          tabBarInactiveTintColor: theme.colors.outlineVariant,
+          tabBarLabelStyle: { fontSize: 10, padding: 0, margin: 0 },
           tabBarStyle: {
-            // height: '8%',
-            paddingBottom: 5,
-            paddingTop: 5,
-            backgroundColor: theme.colors.primary,
+            backgroundColor: theme.colors.primaryContainer,
+            // height: '9%',
           },
-          headerTitleAlign: 'center',
-          headerStyle: {
-            // backgroundColor: '#add1e3',
-            backgroundColor: theme.colors.primary,
-            height: 85,
+          tabBarActiveTintColor: theme.colors.primary,
+          tabBarInactiveTintColor: theme.colors.customGrey,
+          tabBarIndicatorStyle: { backgroundColor: theme.colors.primary },
+          // wanted to show the indicator on the top but
+          tabBarIndicatorContainerStyle: { height: 2 },
+          // tabBarContentContainerStyle: { width: 120, height: 70 },
+          // tabBarItemStyle: { alignItems: 'center' },
+          tabBarIconStyle: {
+            width: 28,
+            height: 28,
+            // paddingBottom: -30,
+            // flex: 1,
+            // justifyContent: 'flex-end',
+            // alignItems: 'flex-start',
           },
-          headerTitle: (props) => (
-            <PaperText
-              variant="headlineLarge"
-              style={{ color: theme.colors.onPrimary }}
-            >
-              {props.children}
-            </PaperText>
-          ),
         }}
       >
-        <Tab.Screen
+        <TopTab.Screen
           name="Home"
           component={HomeScreen}
           options={{
             title: 'Home',
 
-            tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name="home" size={size} color={color} />
-            ),
+            tabBarIcon: ({ color, focused }) => {
+              return focused ? (
+                <MaterialCommunityIcons name="home" size={30} color={color} />
+              ) : (
+                <MaterialCommunityIcons
+                  name="home-outline"
+                  size={30}
+                  color={color}
+                />
+              );
+            },
           }}
         />
-        <Tab.Screen
+        <TopTab.Screen
           name="Messages"
           component={MessagesStackScreen}
           options={({ route, navigation }) => ({
             // headerTitle: getFocusedRouteNameFromRoute(route),
             // headerShown: false,
-            tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name="view-list" size={size} color={color} />
-            ),
+            tabBarIcon: ({ color, focused }) => {
+              return focused ? (
+                <MaterialCommunityIcons
+                  name="email-multiple"
+                  size={28}
+                  color={color}
+                />
+              ) : (
+                <MaterialCommunityIcons
+                  name="email-multiple-outline"
+                  size={28}
+                  color={color}
+                />
+              );
+            },
           })}
         />
-        <Tab.Screen
+        <TopTab.Screen
           name="Events"
           component={Events}
           options={{
-            tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name="event" size={size} color={color} />
-            ),
+            tabBarIcon: ({ color, focused }) => {
+              return focused ? (
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={28}
+                  color={color}
+                />
+              ) : (
+                <MaterialCommunityIcons
+                  name="calendar-outline"
+                  size={28}
+                  color={color}
+                />
+              );
+            },
           }}
         />
-        <Tab.Screen
+        <TopTab.Screen
           name="Settings"
           component={Settings}
           options={{
-            tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name="settings" size={size} color={color} />
-            ),
+            tabBarIcon: ({ color, focused }) => {
+              return focused ? (
+                <MaterialCommunityIcons name="cog" size={28} color={color} />
+              ) : (
+                <MaterialCommunityIcons
+                  name="cog-outline"
+                  size={28}
+                  color={color}
+                />
+              );
+            },
           }}
         />
-      </Tab.Navigator>
+      </TopTab.Navigator>
       {/* </SafeAreaView> */}
     </>
+  );
+  // return (
+  //   <>
+  //     {/* <SafeAreaView style={styles.appContainer}> */}
+  //     <Tab.Navigator
+  //       screenOptions={{
+  //         tabBarActiveTintColor: theme.colors.onPrimary,
+  //         tabBarInactiveTintColor: theme.colors.outlineVariant,
+  //         tabBarStyle: {
+  //           // height: '8%',
+  //           paddingBottom: 5,
+  //           paddingTop: 5,
+  //           backgroundColor: theme.colors.primary,
+  //         },
+  //         headerTitleAlign: 'center',
+  //         headerStyle: {
+  //           // backgroundColor: '#add1e3',
+  //           backgroundColor: theme.colors.primary,
+  //           height: 85,
+  //         },
+  //         headerTitle: (props) => (
+  //           <PaperText
+  //             variant="headlineLarge"
+  //             style={{ color: theme.colors.onPrimary }}
+  //           >
+  //             {props.children}
+  //           </PaperText>
+  //         ),
+  //       }}
+  //     >
+  //       <Tab.Screen
+  //         name="Home"
+  //         component={HomeScreen}
+  //         options={{
+  //           title: 'Home',
+
+  //           tabBarIcon: ({ color, size }) => (
+  //             <MaterialIcons name="home" size={size} color={color} />
+  //           ),
+  //         }}
+  //       />
+  //       <Tab.Screen
+  //         name="Messages"
+  //         component={MessagesStackScreen}
+  //         options={({ route, navigation }) => ({
+  //           // headerTitle: getFocusedRouteNameFromRoute(route),
+  //           // headerShown: false,
+  //           tabBarIcon: ({ color, size }) => (
+  //             <MaterialIcons name="view-list" size={size} color={color} />
+  //           ),
+  //         })}
+  //       />
+  //       <Tab.Screen
+  //         name="Events"
+  //         component={Events}
+  //         options={{
+  //           tabBarIcon: ({ color, size }) => (
+  //             <MaterialIcons name="event" size={size} color={color} />
+  //           ),
+  //         }}
+  //       />
+  //       <Tab.Screen
+  //         name="Settings"
+  //         component={Settings}
+  //         options={{
+  //           tabBarIcon: ({ color, size }) => (
+  //             <MaterialIcons name="settings" size={size} color={color} />
+  //           ),
+  //         }}
+  //       />
+  //     </Tab.Navigator>
+  //     {/* </SafeAreaView> */}
+  //   </>
+  // );
+}
+
+function TabNavigatorWithInset({ children }) {
+  //
+  const insets = useSafeAreaInsets();
+  const tabBarRef = useRef();
+  const tabBarHeight = useRef(0);
+
+  return (
+    <TopTab.Navigator
+      tabBarRef={tabBarRef}
+      tabBarPosition="bottom"
+      screenOptions={{
+        tabBarLabelStyle: { fontSize: 10, padding: 0, margin: 0 },
+        tabBarStyle: {
+          backgroundColor: theme.colors.primaryContainer,
+          // height: '9%',
+        },
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.customGrey,
+        tabBarIndicatorStyle: { backgroundColor: theme.colors.primary },
+        // wanted to show the indicator on the top but
+        tabBarIndicatorContainerStyle: { height: 2 },
+        // tabBarContentContainerStyle: { width: 120, height: 70 },
+        // tabBarItemStyle: { alignItems: 'center' },
+        tabBarIconStyle: {
+          width: 28,
+          height: 28,
+          // paddingBottom: -30,
+          // flex: 1,
+          // justifyContent: 'flex-end',
+          // alignItems: 'flex-start',
+        },
+      }}
+    >
+      <View style={{}}>{children}</View>
+    </TopTab.Navigator>
   );
 }
 
 function MessagesStackScreen({ navigation }) {
   //
+  const theme = useTheme();
+
   return (
     // <>
     <Stack.Navigator
       screenOptions={{
         headerBackTitle: 'Messages',
         headerTitleAlign: 'center',
-        headerBackVisible: true,
+        // headerBackVisible: true,
+        headerStyle: { backgroundColor: theme.colors.primaryContainer },
       }}
     >
       <Stack.Screen
         name="Messages List"
         component={MessagesScreen}
-        options={{ headerTitle: 'Messages', headerShown: false }}
+        options={{ headerTitle: 'Messages', headerShown: true }}
       />
       <Stack.Screen name="New Message" component={NewMessageScreen} />
       <Stack.Screen

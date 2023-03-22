@@ -2,7 +2,6 @@ import { View, Text, Platform } from 'react-native';
 import { useState } from 'react';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import ButtonPrimaryOutline from '../shared/Button';
-import { useAppStateContext } from '../../store/context';
 
 const WEEK_DAYS = [
   'Sunday',
@@ -42,14 +41,11 @@ const MONTHS_SHORT = [
   'Dec',
 ];
 
-export default function ChooseDate({}) {
+export default function ChooseDate({ dateProp, applyChoiceCallback }) {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
   // const [selected, setSelected] = useState(new Date());
-  const { state, saveChanges } = useAppStateContext();
-  const selectedDate = state.messageFormData.sendingDate
-    ? new Date(state.messageFormData.sendingDate)
-    : new Date();
+  const selectedDate = dateProp ? new Date(dateProp) : new Date();
   selectedDate.setUTCSeconds(0);
 
   const showDatePicker = () => {
@@ -81,8 +77,8 @@ export default function ChooseDate({}) {
     //   date.toTimeString()
     // );
 
-    // const newDate = state.messageFormData.sendingDate
-    //   ? new Date(state.messageFormData.sendingDate)
+    // const newDate = dateProp
+    //   ? new Date(dateProp)
     //   : new Date();
     // newDate.setUTCDate(date.getUTCDate());
     // newDate.setUTCMonth(date.getUTCMonth());
@@ -91,7 +87,7 @@ export default function ChooseDate({}) {
     selectedDate.setUTCMonth(date.getUTCMonth());
     selectedDate.setUTCFullYear(date.getUTCFullYear());
 
-    saveChanges({ sendingDate: selectedDate });
+    applyChoiceCallback({ sendingDate: selectedDate });
 
     hideDatePicker();
   };
@@ -111,8 +107,8 @@ export default function ChooseDate({}) {
     //   time.toTimeString()
     // );
 
-    // const newTime = state.messageFormData.sendingDate
-    //   ? new Date(state.messageFormData.sendingDate)
+    // const newTime = dateProp
+    //   ? new Date(dateProp)
     //   : new Date();
     // // newTime.setUTCSeconds(time.getUTCSeconds());
     // newTime.setUTCMinutes(time.getUTCMinutes());
@@ -120,18 +116,15 @@ export default function ChooseDate({}) {
     selectedDate.setUTCHours(time.getUTCHours());
     selectedDate.setUTCMinutes(time.getUTCMinutes());
 
-    saveChanges({ sendingDate: selectedDate });
+    applyChoiceCallback({ sendingDate: selectedDate });
 
     hideTimePicker();
   };
 
   return (
-    <View>
-      <Text>choose date</Text>
+    <>
       <Text>
-        {state.messageFormData.sendingDate
-          ? state.messageFormData.sendingDate.toString()
-          : 'No Date was selected'}
+        {dateProp ? dateProp.toLocaleString() : 'No Date was selected'}
       </Text>
       <View style={{ flexDirection: 'row' }}>
         <ButtonPrimaryOutline label="Select Date" onPress={showDatePicker} />
@@ -157,6 +150,6 @@ export default function ChooseDate({}) {
         // isDarkModeEnabled
         themeVariant="light"
       />
-    </View>
+    </>
   );
 }

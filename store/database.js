@@ -149,6 +149,31 @@ export function editMessage(messageId, newMessage) {
   return promise;
 }
 
+export function deleteMessage({ deleteAll, messageId }) {
+  const sqlStatement = deleteAll
+    ? 'DELETE FROM messages'
+    : `DELETE FROM messages WHERE id = ${messageId}`;
+
+  const promise = new Promise((resolve, reject) => {
+    database.transaction((tx) => {
+      tx.executeSql(
+        sqlStatement,
+        [],
+        (_, result) => {
+          console.log('@db deleting message --- success', result);
+          resolve(result);
+        },
+        (_, error) => {
+          console.log('@db deleting message --- error', error);
+          reject(error);
+        }
+      );
+    });
+  });
+
+  return promise;
+}
+
 // in case of a new message or a resend (repeat sending message) a new event should be added, the event will convert to success in case the user pressed on the notification and got was directed to the phone's send message interface
 export function addEvent(messageId, sendingDate, notificationId) {
   const promise = new Promise((resolve, reject) => {
@@ -171,7 +196,7 @@ export function addEvent(messageId, sendingDate, notificationId) {
   return promise;
 }
 
-/**to change the sending date of an upcoming event */
+/**to change the sending date and the notifications list of ids of an upcoming event - will expect eventId, sendingDate and listOfNotificationsIds */
 export function editEvent(eventId, newSendingDate, newNotificationId) {
   const promise = new Promise((resolve, reject) => {
     database.transaction((tx) => {
@@ -264,31 +289,6 @@ export function updateEvent(updates) {
         },
         (_, error) => {
           console.log('@db updating events --- error', error);
-          reject(error);
-        }
-      );
-    });
-  });
-
-  return promise;
-}
-
-export function deleteMessage({ deleteAll, messageId }) {
-  const sqlStatement = deleteAll
-    ? 'DELETE FROM messages'
-    : `DELETE FROM messages WHERE id = ${messageId}`;
-
-  const promise = new Promise((resolve, reject) => {
-    database.transaction((tx) => {
-      tx.executeSql(
-        sqlStatement,
-        [],
-        (_, result) => {
-          console.log('@db deleting message --- success', result);
-          resolve(result);
-        },
-        (_, error) => {
-          console.log('@db deleting message --- error', error);
           reject(error);
         }
       );

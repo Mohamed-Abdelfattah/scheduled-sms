@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, FlatList, StyleSheet } from 'react-native';
+import { View, ScrollView, FlatList, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import ButtonPrimaryOutline from '../components/shared/Button';
 import NotificationCard from '../components/NotificationCard';
@@ -7,85 +7,106 @@ import Hr from '../components/shared/Hr';
 import { CommonActions, StackActions } from '@react-navigation/native';
 import { useAppStateContext } from '../store/context';
 import MessageCardPaper from '../components/MessagesScreen/MessageCardPaper';
+import WavingHandSvg from '../assets/WavingHand';
+import { Card, Text, Surface, useTheme } from 'react-native-paper';
 
 export default function HomeScreen({ navigation }) {
   // also useNavigation hook can be used in any component to get the navigation object
   // const navigation = useNavigation();
   const { state } = useAppStateContext();
+  const theme = useTheme();
 
   return (
-    <ScrollView>
-      {/* <View style={styles.header}></View> */}
-      {/* <StatusBar style="auto" /> */}
-      <View>
-        <View style={styles.heading}>
-          <Text style={styles.headingText}>Notifications</Text>
-          <ButtonPrimaryOutline label="More" icon="message-bookmark" />
-        </View>
-        <FlatList
-          data={notificationsFake}
-          renderItem={(itemData) => {
-            return <NotificationCard data={itemData.item} />;
-          }}
-          // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
-          // checked on devTools ... id is used by default
-          // keyExtractor={(item, index) => item.messageTitle}
-          horizontal
-        />
-      </View>
-
-      <Hr marginV={10} color="#333" marginH={5} />
-
-      <View style={styles.messages}>
-        <View style={styles.heading}>
-          <Text style={styles.headingText}>Messages</Text>
-          <View style={{ flexDirection: 'row' }}>
-            <ButtonPrimaryOutline
-              label="ADD"
-              icon="message-plus"
-              onPress={() => {
-                // console.log('button was pressed ');
-                // navigation.navigate('Messages', { screen: 'New Message' });
-                navigation.navigate('Messages', {
-                  screen: 'Messages List',
-                  params: {
-                    navigateTo: 'createMessage',
-                  },
-                });
-              }}
-            />
-            <ButtonPrimaryOutline
-              label="MORE"
-              icon="message-bookmark"
-              onPress={() => {
-                navigation.navigate('Messages', {
-                  screen: 'Messages List',
-                  params: { navigateTo: '' },
-                });
-              }}
-            />
+    <View style={{ flex: 1 }}>
+      <ScrollView>
+        <Surface style={{}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+              paddingVertical: 20,
+              backgroundColor: theme.colors.primaryContainer,
+            }}
+          >
+            <Text variant="displayMedium">Hi there!</Text>
+            <WavingHandSvg />
           </View>
+        </Surface>
+
+        <View>
+          <View style={styles.heading}>
+            <Text style={styles.headingText}>Notifications</Text>
+            <ButtonPrimaryOutline label="More" icon="message-bookmark" />
+          </View>
+          <FlatList
+            data={notificationsFake}
+            renderItem={(itemData) => {
+              return <NotificationCard data={itemData.item} />;
+            }}
+            // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
+            // checked on devTools ... id is used by default
+            // keyExtractor={(item, index) => item.messageTitle}
+            horizontal
+          />
         </View>
-        <FlatList
-          data={state.messages}
-          contentContainerStyle={{ paddingHorizontal: 15, paddingVertical: 20 }}
-          // renderItem={MessageCard}
-          // won't be able to use hooks (useNavigation) as it should be called in a react component not a function the above won't work
-          renderItem={(itemData) => <MessageCardPaper item={itemData.item} />}
-          // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
-          keyExtractor={(item, index) => item.id}
-          horizontal
-        />
-      </View>
 
-      <View style={styles.logs}>
-        <MessageCard item={{ title: 'test', id: 'test', content: 'test' }} />
-      </View>
+        <Hr marginV={10} color="#333" marginH={5} />
 
-      <View style={styles.navigation}>
-        <MessageCard item={{ title: 'test', id: 'test', content: 'test' }} />
-      </View>
-    </ScrollView>
+        <View style={styles.messages}>
+          <View style={styles.heading}>
+            <Text style={styles.headingText}>Messages</Text>
+            <View style={{ flexDirection: 'row' }}>
+              <ButtonPrimaryOutline
+                label="ADD"
+                icon="message-plus"
+                onPress={() => {
+                  // console.log('button was pressed ');
+                  // navigation.navigate('Messages', { screen: 'New Message' });
+                  navigation.navigate('Messages', {
+                    screen: 'Messages List',
+                    params: {
+                      navigateTo: 'createMessage',
+                    },
+                  });
+                }}
+              />
+              <ButtonPrimaryOutline
+                label="MORE"
+                icon="message-bookmark"
+                onPress={() => {
+                  navigation.navigate('Messages', {
+                    screen: 'Messages List',
+                    params: { navigateTo: '' },
+                  });
+                }}
+              />
+            </View>
+          </View>
+          <FlatList
+            data={state.messages}
+            contentContainerStyle={{
+              paddingHorizontal: 15,
+              paddingVertical: 20,
+            }}
+            // renderItem={MessageCard}
+            // won't be able to use hooks (useNavigation) as it should be called in a react component not a function the above won't work
+            renderItem={(itemData) => <MessageCardPaper item={itemData.item} />}
+            ItemSeparatorComponent={<View style={{ width: 20 }}></View>}
+            // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
+            keyExtractor={(item, index) => item.id}
+            horizontal
+          />
+        </View>
+
+        <View style={styles.logs}>
+          <MessageCard item={{ title: 'test', id: 'test', content: 'test' }} />
+        </View>
+
+        <View style={styles.navigation}>
+          <MessageCard item={{ title: 'test', id: 'test', content: 'test' }} />
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 

@@ -167,6 +167,9 @@ export default function GlobalContextProvider({ children }) {
   async function editMessageHandler(messageData) {
     dispatch({ type: types.LOADING });
     try {
+      const originalMessage = state.messages.find(
+        (message) => message.id === messageData.id
+      );
       const res = await editMessage(messageData.id, messageData);
       console.log(
         '@context @GlobalContextProvider @editMessageHandler --- success editing message in the database',
@@ -176,24 +179,54 @@ export default function GlobalContextProvider({ children }) {
       // 1- there is an upcoming notification and the message data that will appear in the notification (currently the messageTitle) have changed and for that the notification should have the new info an so a new notification should be created
       // 2- there is no upcoming notifications so the notificationId is for a notification that was already done - we will also call cancelNotification function as it will not fail if there is no notification connected to id (from documentation: Returns A Promise resolves once the scheduled notification is successfully canceled or if there is no scheduled notification for a given identifier.)
       // for case 2 if the sending date haven't changed and the message was already sent/notification was already done so the change only needs to update the title then we need to create new notification that have the same date - for that might want to get the whole message data when editing a message
+      // final: for the notification update => at 1st we should see if the sending date is due or not (sendingDate > dateNow) cause if a notification was already triggered the there is no coming back from this but if no notification was triggered then we will cancel all the upcoming notifications and just create new ones if necessary (tile or sending date were changed)
 
-      // edit the upcoming event if the sendingDate was changed
-      if (messageData?.sendingDate) {
-        // get the eventId by searching the state.events and select the one with scheduled states or get null incase of no upcoming events
-        const eventId =
+      // update upcoming notifications with new data if needed (title or sendingDate changes) if any (only if sendingDate didn't pass already, no notification was ever triggered)
+      let notificationsIdentifiers = null;
+      if (
+        // create new notifications if a sendingDate was changed with a new date that is in the future
+        messageData?.sendingDate > new Date() ||
+        // create new notifications if the title was changed and the notification wasn't fired yet
+        (messageData?.title && originalMessage?.sendingDate < new Date())
+        // by experiment if if a date in the past was passed to expo's scheduleNotificationAsync an id will be returned but no notification will be registered and so in the case of a new title and a new date (which is in the past) there  will be notifications ids but with no actual notifications, so the notifications will only be created if the trigger date passed is in the future, so I need to only cover the case when there is a change in the title and the notification was not triggered yet or in the case of the new sendingDate in the future
+      ) {
+        // will only create notifications if the sendingDate is in the future, so the user can update the hours and keep the date from the past, this is only to avoid handling the cases when editing messages that were already sent, the better ux is to display a message that the message time wsa already due and ask the user to choose new date that the message will be sent upon or to cancel editing sendingDate
+        Notifications.cancelAllScheduledNotificationsAsync();
+        notificationsIdentifiers = await createNotifications({
+          date: new Date(
+            messageData?.sendingDate || originalMessage?.sendingDate
+          ),
+          title: messageData?.title || originalMessage?.title,
+          messageId,
+        });
+      }
+
+      // edit the upcoming event if there was a change in the notifications (new notifications were created)
+      if (notificationsIdentifiers) {
+        // get the event by searching the state.events and select the one with scheduled or warning states or get null incase of no upcoming events
+        const event =
           state.events.find(
             (event) =>
-              event.messageId === messageData.id && event.state === 'scheduled'
-          ).id ?? null;
-        // if there is an upcoming event then the sending date should be changed on this event and if no event then a new one should be added
-        if (eventId === null) {
-          await addEvent(messageData.id, messageData.sendingDate);
+              event.messageId === messageData.id &&
+              (event.state === 'scheduled' || event.state === 'warning')
+          ) ?? null;
+        // if there is an upcoming event then the sending date and the new notifications (if any) should be changed on this event and if no event then a new one should be added
+        if (!event) {
+          await addEvent(
+            messageData.id,
+            new Date(messageData?.sendingDate || originalMessage?.sendingDate),
+            notificationsIdentifiers
+          );
         } else {
-          await editEvent(eventId, messageData.sendingDate);
+          await editEvent(
+            event.id,
+            new Date(messageData?.sendingDate || originalMessage?.sendingDate),
+            notificationsIdentifiers
+          );
         }
         console.log(
           '@context @GlobalContextProvider @editMessageHandler --- success editing event in the database',
-          eventId
+          event
         );
       }
       // keep state synced with db, fetch data from db and populate state {messages:[],events:[]}

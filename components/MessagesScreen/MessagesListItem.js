@@ -36,6 +36,7 @@ const Actions = ({ id }) => {
         //    style={styles.fab}
         onPress={() => console.log('Pressed')}
       />
+
       <FAB
         color={theme.colors.onError}
         style={{ backgroundColor: theme.colors.error }}

@@ -3,13 +3,13 @@ import {
   View,
   StyleSheet,
   FlatList,
-  SafeAreaView,
   Text,
   Pressable,
   ScrollView,
   Button,
+  StatusBar,
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import {
   NavigationContainer,
   TabActions,
@@ -39,6 +39,7 @@ import {
   PreferencesContext,
 } from './utils/theme';
 import AppWithContext from './AppWithContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 // import {
 //   // NavigationContainer,
 //   DarkTheme as NavigationDarkTheme,
@@ -91,8 +92,16 @@ export default function App() {
       <PreferencesContext.Provider value={preferences}>
         <PaperProvider theme={theme}>
           <NavigationContainer theme={theme}>
-            <StatusBar style={isThemeDark ? 'dark' : 'light'} />
-            <AppWithContext />
+            <SafeAreaView style={{ flex: 1 }}>
+              <StatusBar
+                // style={isThemeDark ? 'light' : 'dark'}
+                barStyle="dark-content"
+                backgroundColor="white"
+                // backgroundColor={isThemeDark ? 'black' : 'white'}
+              />
+              {/* <StatusBar style="dark" /> */}
+              <AppWithContext />
+            </SafeAreaView>
           </NavigationContainer>
         </PaperProvider>
       </PreferencesContext.Provider>

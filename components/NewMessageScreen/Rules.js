@@ -14,7 +14,13 @@ export default function Rules() {
     <View style={{ flex: 1 }}>
       <Text style={{ fontSize: 18 }}>Rules</Text>
 
-      <ChooseDate />
+      <View>
+        <Text>choose date</Text>
+        <ChooseDate
+          dateProp={state.messageFormData.sendingDate}
+          applyChoiceCallback={saveChanges}
+        />
+      </View>
 
       <View>
         <View

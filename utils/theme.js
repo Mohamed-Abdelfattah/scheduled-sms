@@ -65,6 +65,7 @@ const lightColors = {
     surfaceDisabled: 'rgba(27, 27, 31, 0.12)',
     onSurfaceDisabled: 'rgba(27, 27, 31, 0.38)',
     backdrop: 'rgba(46, 48, 56, 0.4)',
+    customGrey: 'grey',
   },
 };
 
@@ -110,6 +111,7 @@ const darkColors = {
     surfaceDisabled: 'rgba(229, 225, 230, 0.12)',
     onSurfaceDisabled: 'rgba(229, 225, 230, 0.38)',
     backdrop: 'rgba(48, 48, 56, 0.4)',
+    customGrey: 'lightgrey',
   },
 };
 

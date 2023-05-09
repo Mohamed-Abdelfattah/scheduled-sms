@@ -22,13 +22,14 @@ import {
   useTheme,
 } from 'react-native-paper';
 import EmptyComponent from '../components/MessagesScreen/ListEmptyComponent';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 let count = 0;
-function MessagesScreen({ navigation, route }) {
+export default function MessagesScreen({ navigation, route }) {
   //
   const { state } = useAppStateContext();
   const [isExtended, setIsExtended] = useState(false);
-
+  const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
   // console.log('messagesScreen --- 2 ', route.params);
   const { navigate, setParams } = navigation;
@@ -56,7 +57,7 @@ function MessagesScreen({ navigation, route }) {
         screen: 'Message Details',
         params: {
           id: route.params?.id,
-          title: route.params?.title,
+          // title: route.params?.title,
         },
       });
     }
@@ -93,34 +94,49 @@ function MessagesScreen({ navigation, route }) {
 
   return (
     //   <StatusBar style="auto" />
-    <View style={{ flex: 1, alignItems: 'center' }}>
-      <FlatList
-        data={state.messages}
-        renderItem={({ item }) => <MessagesListItem message={item} />}
-        // contentContainerStyle={{ justifyContent: 'center' }}
-        ListHeaderComponent={
-          <>
-            <Text>MessagesScreen - {count}</Text>
-            <Text>state.status - {state?.status}</Text>
-          </>
-        }
-        ListEmptyComponent={EmptyComponent}
-        ListHeaderComponentStyle={{ alignItems: 'center' }}
-        ListFooterComponent={
-          <View style={{ paddingVertical: 20, alignItems: 'center' }}>
-            <FAB
-              label="Add Message"
-              icon={'plus'}
-              onPress={function () {
-                console.log(
-                  'Add Message pressed - will navigate to new messages screen'
-                );
+    // <View
+    //   style={{
+    //     flex: 1,
+    //     alignItems: 'center',
+    //     paddingTop: insets.top,
+    //     paddingRight: insets.right,
+    //     paddingLeft: insets.left,
+    //     paddingBottom: insets.bottom + 40,
+    //   }}
+    // >
+    <FlatList
+      data={state.messages}
+      renderItem={({ item }) => <MessagesListItem message={item} />}
+      // contentContainerStyle={{ justifyContent: 'center' }}
+      contentContainerStyle={{
+        paddingTop: insets.top,
+        paddingRight: insets.right,
+        paddingLeft: insets.left,
+        paddingBottom: insets.bottom,
+      }}
+      ListHeaderComponent={
+        <>
+          <Text>MessagesScreen - {count}</Text>
+          <Text>state.status - {state?.status}</Text>
+        </>
+      }
+      ListEmptyComponent={EmptyComponent}
+      ListHeaderComponentStyle={{ alignItems: 'center' }}
+      ListFooterComponent={
+        <View style={{ paddingVertical: 20, alignItems: 'center' }}>
+          <FAB
+            label="Add Message"
+            icon={'plus'}
+            onPress={function () {
+              console.log(
+                'Add Message pressed - will navigate to new messages screen'
+              );
 
-                navigate('Messages', { screen: 'New Message' });
-                // navigate('New Message');
-              }}
-            />
-            {/* <AnimatedFAB
+              navigate('Messages', { screen: 'New Message' });
+              // navigate('New Message');
+            }}
+          />
+          {/* <AnimatedFAB
               label="Add Message"
               icon={'plus'}
               extended={true}
@@ -135,13 +151,13 @@ function MessagesScreen({ navigation, route }) {
                 // navigate('New Message');
               }}
             /> */}
-          </View>
-        }
-        // onScrollBeginDrag={() => setIsExtended(false)}
-        // onEndReached={() => setIsExtended(true)}
-      />
+        </View>
+      }
+      // onScrollBeginDrag={() => setIsExtended(false)}
+      // onEndReached={() => setIsExtended(true)}
+    />
 
-      {/* <AnimatedFAB
+    /* <AnimatedFAB
         style={{
           position: 'absolute',
           left: 10,
@@ -183,9 +199,7 @@ function MessagesScreen({ navigation, route }) {
         animateFrom={'right'}
         iconMode={'dynamic'}
         // variant="secondary"
-      /> */}
-    </View>
+      /> */
+    // </View>
   );
 }
-
-export default MessagesScreen;

@@ -2,6 +2,7 @@ import { StyleSheet, View, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Card, { colors } from './shared/Card';
 import Hr from './shared/Hr';
+import { useAppStateContext } from '../store/context';
 
 function NotificationCard({ data }) {
   // console.log('@NotificationCard -- data', data);
@@ -67,7 +68,7 @@ export const getVariant = (inCase) => {
       NotificationTitle: 'Success!',
       icon: 'message-arrow-right-outline',
     };
-  if (inCase === 'fail')
+  if (inCase === 'failure')
     return {
       variant: 'danger',
       NotificationTitle: 'Failed!',
@@ -87,11 +88,17 @@ export const getVariant = (inCase) => {
 };
 
 const Description = ({ variant, data }) => {
-  // query to get message info
+  // query to get message info, as the messages are loaded in the global app state the required message will be selected from the state
   const msgInfo = {
     contactName: data.messageId + '--Name',
     contactNumber: data.messageId + '--Number',
   };
+
+  const { state } = useAppStateContext();
+  const message = state.messages.find((el) => el.id === data.messageId);
+  const contacts = message?.recipients
+    ?.map((el) => el.name || 'no-name')
+    .join(', ');
 
   const styleText = {
     fontSize: 14,
@@ -113,13 +120,13 @@ const Description = ({ variant, data }) => {
 
         <View style={{ flex: 0.1 }}>
           <Hr color={colors[variant].border} marginV={8} />
-          <Text style={styleText}>Sent on: {data.sentOn}</Text>
-          <Text style={styleText}>To: {msgInfo.contactName}</Text>
+          <Text style={styleText}>Sent on: {data.sentOn.toLocaleString()}</Text>
+          <Text style={styleText}>To: {contacts || 'no name'}</Text>
         </View>
       </>
     );
 
-  if (variant === 'fail')
+  if (variant === 'danger')
     return (
       <>
         <Text style={[styleText, styles.heading]}>
@@ -127,8 +134,8 @@ const Description = ({ variant, data }) => {
           Error occurred while sending!
         </Text>
         <Hr color={colors[variant].border} marginV={8} />
-        <Text style={styleText}>On: {data.sentOn}</Text>
-        <Text style={styleText}>To: {msgInfo.contactName}</Text>
+        <Text style={styleText}>On: {data.sentOn.toLocaleString()}</Text>
+        <Text style={styleText}>To: {contacts || 'no name'}</Text>
       </>
     );
 
@@ -140,8 +147,8 @@ const Description = ({ variant, data }) => {
           permission to be sent, press on me to proceed.
         </Text>
         <Hr color={colors[variant].border} marginV={8} />
-        <Text style={styleText}>Sent on: {data.sentOn}</Text>
-        <Text style={styleText}>To: {msgInfo.contactName}</Text>
+        <Text style={styleText}>Sent on: {data.sentOn.toLocaleString()}</Text>
+        <Text style={styleText}>To: {contacts || 'no name'}</Text>
       </>
     );
 
@@ -154,8 +161,10 @@ const Description = ({ variant, data }) => {
       </Text>
       <Hr color={colors[variant].border} marginV={8} />
 
-      <Text style={styleText}>Scheduled on: {data.sentOn}</Text>
-      <Text style={styleText}>To: {msgInfo.contactName}</Text>
+      <Text style={styleText}>
+        Scheduled on: {data.sentOn.toLocaleString()}
+      </Text>
+      <Text style={styleText}>To: {contacts || 'no name'}</Text>
     </>
   );
 };

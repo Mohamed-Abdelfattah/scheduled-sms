@@ -29,7 +29,7 @@ export default function MessageCardPaper({ item }) {
     // });
     navigation.navigate('Messages', {
       screen: 'Messages List',
-      params: { id, title, navigateTo: 'MessageDetails' },
+      params: { id, navigateTo: 'MessageDetails' },
     });
   };
 
@@ -103,7 +103,7 @@ export default function MessageCardPaper({ item }) {
               paddingHorizontal: 10,
             }}
           >
-            {sendingDate.toLocaleString()}
+            {sendingDate.toDateString()}, {sendingDate.toLocaleTimeString()}
           </Text>
           <MaterialCommunityIcons
             name="email-fast-outline"

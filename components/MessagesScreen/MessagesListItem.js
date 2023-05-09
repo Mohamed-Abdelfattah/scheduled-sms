@@ -1,21 +1,30 @@
+import { useState } from 'react';
 import {
   Surface,
-  Button,
   Card,
   Text,
   FAB,
   useTheme,
   Divider,
+  Portal,
 } from 'react-native-paper';
 import React from 'react';
 import Hr from '../shared/Hr';
 import { useAppStateContext } from '../../store/context';
+import { useNavigation } from '@react-navigation/native';
+import DeletionDialog from '../SettingsScreen/DeletionDialog';
 // import { theme } from '../utils/theme';
 
 const Actions = ({ id }) => {
   //
   const theme = useTheme();
   const { deleteMessageHandler } = useAppStateContext();
+  const navigation = useNavigation();
+
+  const [dialogState, setDialogState] = useState({
+    visible: false,
+    type: '',
+  });
 
   return (
     <Surface
@@ -34,9 +43,17 @@ const Actions = ({ id }) => {
         icon="square-edit-outline"
         style={{}}
         //    style={styles.fab}
-        onPress={() => console.log('Pressed')}
+        onPress={() => {
+          console.log('edit was Pressed');
+          navigation.navigate('Messages', {
+            screen: 'Message Details',
+            params: {
+              id,
+              // title: route.params?.title,
+            },
+          });
+        }}
       />
-
       <FAB
         color={theme.colors.onError}
         style={{ backgroundColor: theme.colors.error }}
@@ -46,16 +63,24 @@ const Actions = ({ id }) => {
         //    style={styles.fab}
         onPress={() => {
           console.log('delete card pressed');
-          deleteMessageHandler({ id });
+          // deleteMessageHandler({ id });
+          setDialogState({ visible: true, type: 'single-message' });
         }}
       />
+      <Portal>
+        <DeletionDialog
+          visible={dialogState.visible}
+          itemsToBeDeleted={dialogState.type}
+          hideDialog={() => setDialogState({ visible: false, type: '' })}
+          messageId={id}
+        />
+      </Portal>
     </Surface>
   );
 };
 
 const MessagesListItem = ({ message }) => {
   //
-
   const recipients = message.recipients.length
     ? message.recipients.reduce((accumulator, currentValue, index, array) => {
         if (index === array.length - 1)
@@ -86,17 +111,7 @@ const MessagesListItem = ({ message }) => {
         marginVertical: 10,
         // backgroundColor: theme.colors.primary,
       }}
-      onPress={() => {
-        console.log('card  pressed');
-      }}
     >
-      {/* <Card.Title
-        title={message.title}
-        titleVariant="titleLarge"
-        // subtitle="Card Subtitle"
-        right={Actions}
-        rightStyle={{ flexDirection: 'row' }}
-      /> */}
       <Card.Content
         style={{
           flexDirection: 'row',
@@ -127,13 +142,13 @@ const MessagesListItem = ({ message }) => {
           {recipients}
         </Text>
 
-        <Text variant="bodyLarge">Rules:</Text>
+        <Text variant="bodyLarge">Rules: </Text>
         <Text>
           {'  '}
           {rules}
         </Text>
 
-        <Text variant="bodyLarge">On:</Text>
+        <Text variant="bodyLarge">On: </Text>
         <Text>
           {'  '}
           {date}
@@ -149,3 +164,13 @@ const MessagesListItem = ({ message }) => {
 };
 
 export default React.memo(MessagesListItem);
+
+// const [dialogState, setDialogState] = useState({ visible: false, type: '' });
+
+// <Portal>
+//   <DeletionDialog
+//     visible={dialogState.visible}
+//     itemsToBeDeleted={dialogState.type}
+//     hideDialog={() => setDialogState({ visible: false, type: '' })}
+//   />
+// </Portal>;

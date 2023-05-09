@@ -1,4 +1,4 @@
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, FlatList } from 'react-native';
 import { useAppStateContext } from '../store/context';
 import {
   Text,
@@ -16,6 +16,8 @@ import EditableItem from '../components/MessageDetailsScreen/EditableItem';
 import { useState } from 'react';
 import ChooseDate from '../components/NewMessageScreen/ChooseDate';
 import SelectRules from '../components/MessageDetailsScreen/SelectRules';
+import RecipientsList from '../components/MessageDetailsScreen/RecipientsList';
+import AddRecipient from '../components/MessageDetailsScreen/AddRecipient';
 
 export default function MessageDetailsScreen({ route }) {
   //
@@ -53,6 +55,7 @@ export default function MessageDetailsScreen({ route }) {
   }
 
   const { repeat, repeatEvery } = editState.changes?.rules || message?.rules;
+  const recipients = editState.changes.recipients || [...message?.recipients];
 
   console.log(
     '@MessageDetailsScreen -- editState.changes.length =',
@@ -91,10 +94,10 @@ export default function MessageDetailsScreen({ route }) {
                 }}
                 multiline
                 value={editState.changes?.title ?? message.title}
-                onChangeText={(title) => {
+                onChangeText={(newTitle) => {
                   setEditState((prev) => ({
                     ...prev,
-                    changes: { ...prev.changes, title },
+                    changes: { ...prev.changes, newTitle },
                   }));
                 }}
               />
@@ -165,9 +168,53 @@ export default function MessageDetailsScreen({ route }) {
           startEditing={startEditingHandler.bind(this, 'recipients')}
           cancelEditing={cancelEditingHandler.bind(this, 'recipients')}
         >
-          <Text variant="bodyLarge" style={{ paddingBottom: 5 }}>
-            render a flatList or scrollView with the recipients cards
-          </Text>
+          {editState.isEditing.recipients && (
+            <>
+              <Text>Add a new recipient</Text>
+              <AddRecipient
+                addRecipientCallback={(contact) => {
+                  console.log('contact to be added ---', contact);
+                  setEditState((prev) => {
+                    const newRecipientsList = [...prev.changes.recipients].push(
+                      contact
+                    );
+                    return {
+                      ...prev,
+                      changes: {
+                        ...prev.changes,
+                        recipients: newRecipientsList,
+                      },
+                    };
+                  });
+                }}
+              />
+              <Text
+                variant="bodyMedium"
+                style={{
+                  paddingBottom: 5,
+                  textAlign: 'center',
+                  color: theme.colors.error,
+                }}
+              >
+                click on the delete icon to remove a recipient
+              </Text>
+            </>
+          )}
+          <RecipientsList
+            recipientsData={recipients}
+            isEditing={editState.isEditing.recipients}
+            removeRecipientCallback={(idToRemove) => {
+              setEditState((prev) => {
+                const newRecipientsList = recipients.filter(
+                  (recip) => recip.id !== idToRemove
+                );
+                return {
+                  ...prev,
+                  changes: { ...prev.changes, recipients: newRecipientsList },
+                };
+              });
+            }}
+          />
         </EditableItem>
 
         <EditableItem

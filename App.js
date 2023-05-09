@@ -8,6 +8,7 @@ import {
   ScrollView,
   Button,
   StatusBar,
+  Platform,
 } from 'react-native';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import {
@@ -15,6 +16,7 @@ import {
   TabActions,
   useNavigation,
 } from '@react-navigation/native';
+import { getStatusBarHeight } from 'react-native-status-bar-height';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -39,7 +41,7 @@ import {
   PreferencesContext,
 } from './utils/theme';
 import AppWithContext from './AppWithContext';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 // import {
 //   // NavigationContainer,
 //   DarkTheme as NavigationDarkTheme,
@@ -89,22 +91,47 @@ export default function App() {
 
   return (
     <GlobalContextProvider>
+      <StatusBarWithWhiteBackground
+        isIOS={Platform.OS === 'ios'}
+        isDarkTheme={isThemeDark}
+      />
+      {/* <StatusBar barStyle="dark-content" backgroundColor="white" /> */}
+      {/* <ExpoStatusBar
+        style={isThemeDark ? 'light' : 'dark'}
+        backgroundColor={isThemeDark ? 'black' : 'white'}
+      /> */}
       <PreferencesContext.Provider value={preferences}>
         <PaperProvider theme={theme}>
           <NavigationContainer theme={theme}>
-            <SafeAreaView style={{ flex: 1 }}>
-              <StatusBar
-                // style={isThemeDark ? 'light' : 'dark'}
-                barStyle="dark-content"
-                backgroundColor="white"
-                // backgroundColor={isThemeDark ? 'black' : 'white'}
-              />
-              {/* <StatusBar style="dark" /> */}
+            <SafeAreaProvider>
               <AppWithContext />
-            </SafeAreaView>
+            </SafeAreaProvider>
           </NavigationContainer>
         </PaperProvider>
       </PreferencesContext.Provider>
     </GlobalContextProvider>
+  );
+}
+
+/**should return a statusBar with not-transparent white background  */
+function StatusBarWithWhiteBackground({ isIOS, isDarkTheme }) {
+  if (isIOS)
+    return (
+      <View
+        style={{
+          width: '100%',
+          height: getStatusBarHeight(),
+          backgroundColor: isDarkTheme ? 'black' : 'white',
+        }}
+      >
+        <StatusBar barStyle={isDarkTheme ? 'light-content' : 'dark-content'} />
+      </View>
+    );
+
+  return (
+    <StatusBar
+      barStyle={isDarkTheme ? 'light-content' : 'dark-content'}
+      backgroundColor={isDarkTheme ? 'black' : 'white'}
+    />
   );
 }

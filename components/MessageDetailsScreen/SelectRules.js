@@ -98,9 +98,7 @@ export default function SelectRules({ repeat, every, callbackFn }) {
                       setVisible(false);
                     }}
                   />
-                  {index === choices.length - 1 ? (
-                    <></>
-                  ) : (
+                  {index !== choices.length - 1 && (
                     <Divider key={choice.value} />
                   )}
                 </>

@@ -24,9 +24,9 @@ export default function DeletionDialog({
   visible,
   hideDialog,
   itemsToBeDeleted,
+  messageId,
 }) {
   //
-
   const {
     state,
     deleteMessageHandler,
@@ -58,9 +58,22 @@ export default function DeletionDialog({
     assertionMessage +=
       'all the messages, scheduled events, and logs will be deleted permanently';
     deleteHandler = deleteAllDataHandler;
+  } else if (itemsToBeDeleted === 'single-message') {
+    data = ['Message'];
+    assertionMessage = `Are you sure you want to delete this message?\n\nThis is an irreversible action and the message data and all of its scheduled events will be deleted permanently!`;
+    deleteHandler = deleteMessageHandler.bind(this, { id: messageId });
   }
 
+  // the state.status will be 'success' after any successful db and state manipulations (for any other reason as it's a global status(here proves why it's not ideal to use a global status for the app)) so we can't relay on status only to control the transition between 'loading' to 'success' states cause here we need to assert that all the deleting have ended already before rendering the success ui
+  // a good solution maybe to have a local ref or state that holds a flag representing the if the deletion happened or not and to be changed when upon the deleteHandler execution (deleteHandler = ()=>{delete();setFlag(done)}) rendering the ui will depend on that, but here I won't do that instead i'll assert that the deletion happened and set the flag independently
+  // by looping over the data to be deleted we want to assert that that the deletion happened by checking the app state for the data to be deleted
   for (let el of data) {
+    if (el === 'Message') {
+      if (!state.messages.some((message) => message.id === messageId)) {
+        nothingMoreToBeDeleted = true;
+      }
+      break;
+    }
     if (state[el.toLowerCase()]?.length > 0) {
       nothingMoreToBeDeleted = false;
       break;
@@ -95,7 +108,9 @@ export default function DeletionDialog({
   return (
     <Dialog visible={visible} onDismiss={hideDialog}>
       <Dialog.Title style={{ textAlign: 'center' }}>
-        Delete All {itemsToBeDeleted}
+        {itemsToBeDeleted === 'single-message'
+          ? `Delete Message`
+          : `Delete All ${itemsToBeDeleted}`}
       </Dialog.Title>
 
       {content}
@@ -156,7 +171,6 @@ function DeletionLoading({ data }) {
 
 function DeletionSuccess({ itemsToBeDeleted, hideDialog }) {
   //
-
   return (
     <>
       <MaterialCommunityIcons
@@ -181,7 +195,6 @@ function DeletionSuccess({ itemsToBeDeleted, hideDialog }) {
 
 function DeletionError({ itemsToBeDeleted, hideDialog }) {
   //
-
   const theme = useTheme();
 
   return (

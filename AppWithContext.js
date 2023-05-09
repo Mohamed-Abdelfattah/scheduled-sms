@@ -205,6 +205,7 @@ export default function AppWithContext() {
         tabBarPosition="bottom"
         screenOptions={{
           tabBarLabelStyle: { fontSize: 10, padding: 0, margin: 0 },
+
           tabBarStyle: {
             backgroundColor: theme.colors.primaryContainer,
             // height: '9%',
@@ -383,44 +384,6 @@ export default function AppWithContext() {
   //     {/* </SafeAreaView> */}
   //   </>
   // );
-}
-
-function TabNavigatorWithInset({ children }) {
-  //
-  const insets = useSafeAreaInsets();
-  const tabBarRef = useRef();
-  const tabBarHeight = useRef(0);
-
-  return (
-    <TopTab.Navigator
-      tabBarRef={tabBarRef}
-      tabBarPosition="bottom"
-      screenOptions={{
-        tabBarLabelStyle: { fontSize: 10, padding: 0, margin: 0 },
-        tabBarStyle: {
-          backgroundColor: theme.colors.primaryContainer,
-          // height: '9%',
-        },
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.customGrey,
-        tabBarIndicatorStyle: { backgroundColor: theme.colors.primary },
-        // wanted to show the indicator on the top but
-        tabBarIndicatorContainerStyle: { height: 2 },
-        // tabBarContentContainerStyle: { width: 120, height: 70 },
-        // tabBarItemStyle: { alignItems: 'center' },
-        tabBarIconStyle: {
-          width: 28,
-          height: 28,
-          // paddingBottom: -30,
-          // flex: 1,
-          // justifyContent: 'flex-end',
-          // alignItems: 'flex-start',
-        },
-      }}
-    >
-      <View style={{}}>{children}</View>
-    </TopTab.Navigator>
-  );
 }
 
 function MessagesStackScreen({ navigation }) {

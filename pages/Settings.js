@@ -13,15 +13,27 @@ import {
 } from 'react-native-paper';
 import { PreferencesContext } from '../utils/theme';
 import DeletionDialog from '../components/SettingsScreen/DeletionDialog';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Settings() {
   //
   const { isThemeDark, toggleTheme } = useContext(PreferencesContext);
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [dialogState, setDialogState] = useState({ visible: false, type: '' });
 
   return (
-    <Surface style={{ flex: 1, padding: 15 }}>
+    <Surface
+      style={{
+        flex: 1,
+        // alignItems: 'center',
+        // justifyContent: 'center',
+        paddingTop: insets.top + 25,
+        paddingBottom: insets.bottom,
+        paddingLeft: insets.left + 15,
+        paddingRight: insets.right + 15,
+      }}
+    >
       <Surface
         elevation={0}
         style={{

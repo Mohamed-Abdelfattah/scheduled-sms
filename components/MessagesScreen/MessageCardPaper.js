@@ -100,7 +100,7 @@ export default function MessageCardPaper({ item }) {
             style={{
               fontStyle: 'italic',
               color: 'grey',
-              paddingHorizontal: 10,
+              paddingHorizontal: 5,
             }}
           >
             {sendingDate.toDateString()}, {sendingDate.toLocaleTimeString()}

@@ -5,6 +5,7 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import Checkbox from 'expo-checkbox';
 import React, { useEffect, useState } from 'react';
@@ -124,6 +125,7 @@ export default function NewMessageScreen({ navigation, route }) {
           flex: 1,
           justifyContent: 'space-between',
           alignItems: 'center',
+          paddingBottom: 50,
         }}
       >
         <View style={{ flex: 1 }}>
@@ -134,6 +136,29 @@ export default function NewMessageScreen({ navigation, route }) {
               console.log(
                 '@NewMessage --- pressed on save --- will navigate to MessagesScreen'
               );
+
+              const validSendingTime = new Date(Date.now() + 2 * 60000);
+              validSendingTime.setSeconds(0);
+              // console.log(
+              //   'date.now =',
+              //   new Date(),
+              //   'comparing sendingTime:',
+              //   state.messageFormData.sendingDate.toLocaleString(),
+              //   '=',
+              //   state.messageFormData.sendingDate.getTime(),
+              //   'with now + 2 minutes:',
+              //   '=',
+              //   validSendingTime.getTime(),
+              //   validSendingTime.toLocaleString(),
+              //   state.messageFormData.sendingDate.getTime() <
+              //     validSendingTime.getTime()
+              // );
+              // validate time/date choice and alert user to choose date in the future (at least 2 minutes after the moment the button was pressed)
+              if (state.messageFormData.sendingDate < validSendingTime) {
+                // alert
+                createOneButtonAlert();
+                return;
+              }
               await createNewMessage();
               navigation.navigate('Messages', {
                 screen: 'Messages List',
@@ -147,6 +172,21 @@ export default function NewMessageScreen({ navigation, route }) {
       </View>
     </ScrollView>
     // </View>
+  );
+}
+
+function createOneButtonAlert(id, callback) {
+  Alert.alert(
+    'Sending Time!',
+    'Please choose a sending date/time that at least 2 minutes after now.',
+    [
+      {
+        text: 'Close',
+        onPress: () => {
+          console.log('sending date error');
+        },
+      },
+    ]
   );
 }
 

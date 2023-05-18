@@ -54,15 +54,16 @@ export default function MessageDetailsScreen({ route }) {
     });
   }
 
+  const title = editState.changes?.title ?? message?.title;
   const { repeat, repeatEvery } = editState.changes?.rules || message?.rules;
   const recipients = editState.changes.recipients || [...message?.recipients];
 
   console.log(
     '@MessageDetailsScreen -- editState.changes.length =',
     Object.keys(editState.changes).length,
-    '--- rules:',
-    repeat,
-    repeatEvery
+    '--- title:',
+    title,
+    message.title
   );
   console.log(editState);
 
@@ -85,7 +86,7 @@ export default function MessageDetailsScreen({ route }) {
             <View style={{ flex: 1, paddingStart: 15 }}>
               <TextInput
                 dense
-                error={editState.changes?.title?.trim() === ''}
+                error={title?.trim() === ''}
                 style={{
                   backgroundColor: 'white',
                   fontSize: 22,
@@ -93,16 +94,16 @@ export default function MessageDetailsScreen({ route }) {
                   paddingEnd: 15,
                 }}
                 multiline
-                value={editState.changes?.title ?? message.title}
+                value={title}
                 onChangeText={(newTitle) => {
                   setEditState((prev) => ({
                     ...prev,
-                    changes: { ...prev.changes, newTitle },
+                    changes: { ...prev.changes, title: newTitle },
                   }));
                 }}
               />
               {/* title will be mandatory input that shouldn't be blank */}
-              {editState.changes?.title?.trim() === '' && (
+              {title?.trim() === '' && (
                 <HelperText
                   type="error"
                   padding="none"
@@ -174,18 +175,18 @@ export default function MessageDetailsScreen({ route }) {
               <AddRecipient
                 addRecipientCallback={(contact) => {
                   console.log('contact to be added ---', contact);
-                  setEditState((prev) => {
-                    const newRecipientsList = [...prev.changes.recipients].push(
-                      contact
-                    );
-                    return {
-                      ...prev,
-                      changes: {
-                        ...prev.changes,
-                        recipients: newRecipientsList,
-                      },
-                    };
-                  });
+                  console.log('will add new recipient', recipients);
+                  const newRecipientsList = [...recipients];
+                  newRecipientsList.push(contact);
+                  console.log('after adding new recipient', newRecipientsList);
+
+                  setEditState((prev) => ({
+                    ...prev,
+                    changes: {
+                      ...prev.changes,
+                      recipients: newRecipientsList,
+                    },
+                  }));
                 }}
               />
               <Text

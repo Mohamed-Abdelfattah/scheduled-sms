@@ -113,8 +113,8 @@ const Description = ({ variant, data }) => {
         // style={{ flex: 1 }}
         >
           <Text style={[styleText, styles.heading]}>
-            <Text style={styles.bold}>{data.messageTitle}</Text> was sent
-            successfully
+            <Text style={styles.bold}>{data.messageTitle}</Text>You clicked the
+            notification and got directed to sms messenger app successfully
           </Text>
         </View>
 

@@ -1,6 +1,11 @@
 import { View, StyleSheet, Text, Pressable } from 'react-native';
 
-export default function Card({ variant = 'blank', children, onPress }) {
+export default function Card({
+  variant = 'blank',
+  children,
+  onPress,
+  isCardDisabled = false,
+}) {
   return (
     <View
       style={[
@@ -9,9 +14,14 @@ export default function Card({ variant = 'blank', children, onPress }) {
           backgroundColor: colors[variant].background,
           borderColor: colors[variant].border,
         },
+        variant === 'blank' ? { height: 120 } : {},
       ]}
     >
-      <Pressable style={{ flex: 1, padding: 5 }} onPress={onPress}>
+      <Pressable
+        disabled={isCardDisabled}
+        style={{ flex: 1, padding: 5 }}
+        onPress={onPress}
+      >
         {children}
       </Pressable>
     </View>
@@ -59,9 +69,9 @@ export const colors = {
     border: '#a3cfbb',
   },
   blank: {
-    fill: '#000',
-    background: '#fff',
-    border: '#000',
+    fill: '#787878',
+    background: '#ffffffd7',
+    border: '#787878',
   },
 };
 
@@ -77,3 +87,4 @@ export const colors = {
 // #0d6efd #4091d7  #0a58ca
 // #0dcaf0 #99e9eb  #cfe2ff
 //                      #9ec5fe
+// #e1e3e2

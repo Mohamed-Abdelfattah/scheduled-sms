@@ -10,6 +10,8 @@ import MessageCardPaper from '../components/MessagesScreen/MessageCardPaper';
 import WavingHandSvg from '../assets/WavingHand';
 import { Card, Text, Surface, useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import EmptyEventsListComponent from '../components/EmptyEventsListComponent';
+import ListEmptyComponent from '../components/MessagesScreen/ListEmptyComponent';
 
 export default function HomeScreen({ navigation }) {
   // also useNavigation hook can be used in any component to get the navigation object
@@ -60,6 +62,14 @@ export default function HomeScreen({ navigation }) {
           // checked on devTools ... id is used by default
           // keyExtractor={(item, index) => item.messageTitle}
           horizontal
+          // ListEmptyComponent={<EmptyEventsListComponent isNotificationsList />}
+          ListEmptyComponent={
+            <ListEmptyComponent
+              titleText="No upcoming messages to be sent!"
+              bodyText="Cards for the upcoming events of sending the scheduled messages will appear in this section once you schedule some messages to be sent"
+            />
+          }
+          centerContent
         />
       </View>
 
@@ -98,8 +108,13 @@ export default function HomeScreen({ navigation }) {
         <FlatList
           data={state.messages}
           contentContainerStyle={{
-            paddingHorizontal: 15,
+            // justifyContent: 'center',
+            // alignItems: 'center',
+            // flex: 1,
+            paddingHorizontal: 20,
             paddingVertical: 20,
+            // paddingRight: 'auto',
+            // paddingLeft: 'auto',
           }}
           // renderItem={MessageCard}
           // won't be able to use hooks (useNavigation) as it should be called in a react component not a function the above won't work
@@ -108,15 +123,41 @@ export default function HomeScreen({ navigation }) {
           // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
           keyExtractor={(item, index) => item.id}
           horizontal
+          ListEmptyComponent={
+            <ListEmptyComponent
+              titleText="No Messages were added yet!"
+              bodyText="Cards containing message's info will appear in this section once you create some"
+            />
+          }
+          centerContent
         />
       </View>
 
-      <View style={styles.logs}>
-        <MessageCard item={{ title: 'test', id: 'test', content: 'test' }} />
-      </View>
+      <Hr marginV={10} color="#333" marginH={5} />
 
-      <View style={styles.navigation}>
-        <MessageCard item={{ title: 'test', id: 'test', content: 'test' }} />
+      <View>
+        <View style={styles.heading}>
+          <Text style={styles.headingText}>Events</Text>
+          <ButtonPrimaryOutline label="More" icon="message-bookmark" />
+        </View>
+        <FlatList
+          // data={upcoming}
+          data={state.events}
+          renderItem={(itemData) => {
+            return <NotificationCard data={itemData.item} />;
+          }}
+          // not needed as in the docs "The default extractor checks item.key, then item.id, and then falls back to using the index, like React does."
+          // checked on devTools ... id is used by default
+          // keyExtractor={(item, index) => item.messageTitle}
+          horizontal
+          ListEmptyComponent={
+            <ListEmptyComponent
+              titleText="No Events were added yet!"
+              bodyText="Cards for all the events of the scheduled messages will appear in this section once you schedule some"
+            />
+          }
+          centerContent
+        />
       </View>
     </ScrollView>
     // </View>

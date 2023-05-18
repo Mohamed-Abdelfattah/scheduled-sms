@@ -6,7 +6,7 @@ function GoalInput(props) {
       <TextInput
         style={styles.textInput}
         placeholder="place your goal"
-        value={props.textValue}
+        value={props.textValuee}
         onChangeText={props.inputChangeHandler}
       />
       <Button title="Add Goal" onPress={props.addGoalHandler} />

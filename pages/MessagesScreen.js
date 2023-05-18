@@ -21,7 +21,7 @@ import {
   FAB,
   useTheme,
 } from 'react-native-paper';
-import EmptyComponent from '../components/MessagesScreen/ListEmptyComponent';
+import ListEmptyComponent from '../components/MessagesScreen/ListEmptyComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 let count = 0;
@@ -120,7 +120,13 @@ export default function MessagesScreen({ navigation, route }) {
           <Text>state.status - {state?.status}</Text>
         </>
       }
-      ListEmptyComponent={EmptyComponent}
+      ListEmptyComponent={
+        <ListEmptyComponent
+          titleText="No Messages were added yet!"
+          bodyText="Try adding some by pressing the button below"
+          extraCardStyles={{ marginVertical: 50 }}
+        />
+      }
       ListHeaderComponentStyle={{ alignItems: 'center' }}
       ListFooterComponent={
         <View style={{ paddingVertical: 20, alignItems: 'center' }}>

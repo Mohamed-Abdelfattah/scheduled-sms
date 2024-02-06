@@ -9,9 +9,9 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { getMessages } from '../store/database';
-import { useAppStateContext } from '../store/context';
-import MessageCard from '../components/MessageCard';
+import { getMessages } from '../../../store/database';
+import { useAppStateContext } from '../../../store/context';
+import MessageCard from '../../../components/MessageCard';
 import MessagesListItem from '../components/MessagesScreen/MessagesListItem';
 import {
   AnimatedFAB,
@@ -132,7 +132,7 @@ export default function MessagesScreen({ navigation, route }) {
         <View style={{ paddingVertical: 20, alignItems: 'center' }}>
           <FAB
             label="Add Message"
-            icon={'plus'}
+            icon="plus"
             onPress={function () {
               console.log(
                 'Add Message pressed - will navigate to new messages screen'

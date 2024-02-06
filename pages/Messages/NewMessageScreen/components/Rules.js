@@ -5,8 +5,7 @@ import Checkbox from 'expo-checkbox';
 import { useAppStateContext } from '../../store/context';
 
 export default function Rules() {
-  const [every, setEvery] = useState('');
-
+  //
   const { state, saveChanges } = useAppStateContext();
   const { repeat, repeatEvery } = state.messageFormData.rules;
 

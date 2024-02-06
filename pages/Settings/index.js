@@ -11,8 +11,8 @@ import {
   Portal,
   Dialog,
 } from 'react-native-paper';
-import { PreferencesContext } from '../utils/theme';
-import DeletionDialog from '../components/SettingsScreen/DeletionDialog';
+import { PreferencesContext } from '../../utils/theme';
+import DeletionDialog from '../../components/SettingsScreen/DeletionDialog';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function Settings() {

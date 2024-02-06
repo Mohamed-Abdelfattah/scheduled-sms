@@ -1,5 +1,5 @@
 import { View, ScrollView, FlatList } from 'react-native';
-import { useAppStateContext } from '../store/context';
+import { useAppStateContext } from '../../../store/context';
 import {
   Text,
   Surface,
@@ -262,7 +262,8 @@ export default function MessageDetailsScreen({ route }) {
                     ...prev,
                     changes: {
                       ...prev.changes,
-                      rules: { ...prev.changes.rules, ...newRules },
+                      rules: { ...prev.changes.rules },
+                      ...newRules,
                     },
                   };
                 });

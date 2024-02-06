@@ -14,6 +14,8 @@ import {
   Pressable,
   ScrollView,
   Button,
+  Animated,
+  TouchableOpacity,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import {
@@ -21,9 +23,7 @@ import {
   TabActions,
   useNavigation,
 } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+
 import {
   Provider as PaperProvider,
   useTheme,
@@ -33,22 +33,18 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
 import * as SMS from 'expo-sms';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MessagesScreen from './pages/MessagesScreen';
-import NewMessageScreen from './pages/NewMessageScreen';
-import MessageDetailsScreen from './pages/MessageDetailsScreen';
-import Events from './pages/Events';
+import MessagesScreen from './pages/Messages/MessagesListScreen';
+import NewMessageScreen from './pages/Messages/NewMessageScreen/NewMessageScreen';
+import NewMessageScreenPaper from './pages/Messages/NewMessageScreen';
+import MessageDetailsScreen from './pages/Messages/MessageDetailsScreen';
+import Events from './pages/Events/Events';
 import Settings from './pages/Settings';
-import HomeScreen from './pages/HomeScreen';
+import HomeScreen from './pages/Home';
 import GlobalContextProvider, { useAppStateContext } from './store/context';
 import { PreferencesContext } from './utils/theme';
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import Background from './components/shared/LinearGradientBackground';
 
-const MaterialBottomTab = createMaterialBottomTabNavigator();
-const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
-const TopTab = createMaterialTopTabNavigator();
 // to ensure that splash screen will be kept visible until hideAsync() got called when finishing loading all the assets and fetching data and rendering a component
 SplashScreen.preventAutoHideAsync();
 
@@ -72,6 +68,7 @@ export default function AppWithContext() {
       console.log(
         '@useEffect @AppWithContext @App @startApp --- will initialize database and populate state'
       );
+
       // initialize the database tables with the base tables structure and fetch data from them and populate global state with the data
       // I think as we are in the same useEffect the state update will be batched/scheduled and for that after calling initializeApp() the sate should be updated but this new state snapshot won't be available in this useEffect scope and for that in order to be able to process events after initializing the app and retrieving data we can either use another useEffect that will be fired after this one  or get the data back from initializeApp() and process it and this is what i'll do here
       const data = await initializeApp();
@@ -197,6 +194,7 @@ export default function AppWithContext() {
   }
 
   console.log('@AppWithContext @App --- rendering ');
+
   return (
     <>
       {/* <SafeAreaView style={styles.appContainer}> */}
@@ -205,7 +203,6 @@ export default function AppWithContext() {
         tabBarPosition="bottom"
         screenOptions={{
           tabBarLabelStyle: { fontSize: 10, padding: 0, margin: 0 },
-
           tabBarStyle: {
             backgroundColor: theme.colors.primaryContainer,
             // height: '9%',
@@ -232,7 +229,6 @@ export default function AppWithContext() {
           component={HomeScreen}
           options={{
             title: 'Home',
-
             tabBarIcon: ({ color, focused }) => {
               return focused ? (
                 <MaterialCommunityIcons name="home" size={30} color={color} />
@@ -269,10 +265,12 @@ export default function AppWithContext() {
             },
           })}
         />
+
         <TopTab.Screen
           name="Events"
-          component={Events}
+          component={EventsTabScreen}
           options={{
+            // title: 'Events',
             tabBarIcon: ({ color, focused }) => {
               return focused ? (
                 <MaterialCommunityIcons
@@ -290,6 +288,7 @@ export default function AppWithContext() {
             },
           }}
         />
+
         <TopTab.Screen
           name="Settings"
           component={Settings}
@@ -386,36 +385,147 @@ export default function AppWithContext() {
   // );
 }
 
-function MessagesStackScreen({ navigation }) {
+function EventsTabScreen() {
   //
   const theme = useTheme();
 
   return (
-    // <>
-    <Stack.Navigator
-      screenOptions={{
-        headerBackTitle: 'Messages',
-        headerTitleAlign: 'center',
-        // headerBackVisible: true,
-        headerStyle: { backgroundColor: theme.colors.primaryContainer },
+    <TopTab.Navigator
+      // screenOptions={{
+      //   headerBackTitle: 'Events',
+      //   headerTitleAlign: 'center',
+
+      //   // headerBackVisible: true,
+      //   headerStyle: { backgroundColor: theme.colors.primaryContainer },
+      //   tabBarStyle: {
+      //     width: '95%',
+      //     alignSelf: 'center',
+      //     backgroundColor: theme.colors.primaryContainer,
+      //     // height: '9%',
+      //   },
+      //   tabBarActiveTintColor: theme.colors.primary,
+
+      //   tabBarInactiveTintColor: theme.colors.customGrey,
+      //   // tabBarInactiveTintColor: theme.colors.outlineVariant,
+      //   tabBarIndicatorStyle: { backgroundColor: theme.colors.primary },
+      //   tabBarItemStyle: {
+      //     // borderTopLeftRadius: 10,
+      //     // borderTopRightRadius: 10,
+      //     // borderBottomLeftRadius: -10,
+      //     // // backgroundColor: theme.colors.primaryContainer,
+      //     // borderWidth: 1,
+      //     // borderBottomWidth: 0,
+      //   },
+      // }}
+      tabBar={(props) => <MyTabBar {...props} />}
+    >
+      <TopTab.Screen
+        name="Messages"
+        component={() => (
+          <Background
+            topColor={theme.colors.primaryContainer}
+            bottomColor={theme.colors.background}
+          >
+            <Events />
+          </Background>
+        )}
+        options={{ headerTitle: 'Events', headerShown: true }}
+      />
+      <TopTab.Screen name="Calls" component={Events} />
+    </TopTab.Navigator>
+  );
+}
+
+// custom tabBar
+function MyTabBar({ state, descriptors, navigation, position }) {
+  const theme = useTheme();
+
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        backgroundColor: theme.colors.background,
+        justifyContent: 'center',
+        alignItems: 'center',
+        // width: '95%',
+        alignSelf: 'center',
+        // borderWidth: 1,
+        // padding: 10,
       }}
     >
-      <Stack.Screen
-        name="Messages List"
-        component={MessagesScreen}
-        options={{ headerTitle: 'Messages', headerShown: true }}
-      />
-      <Stack.Screen name="New Message" component={NewMessageScreen} />
-      <Stack.Screen
-        name="Message Details"
-        component={MessageDetailsScreen}
-        // options={({ route, navigation }) => {
-        //   const { title } = route.params;
-        //   return { headerTitle: title };
-        // }}
-      />
-    </Stack.Navigator>
-    // </>
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        const label =
+          options.tabBarLabel !== undefined
+            ? options.tabBarLabel
+            : options.title !== undefined
+            ? options.title
+            : route.name;
+
+        const isFocused = state.index === index;
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name, route.params);
+          }
+        };
+
+        const onLongPress = () => {
+          navigation.emit({
+            type: 'tabLongPress',
+            target: route.key,
+          });
+        };
+
+        const inputRange = state.routes.map((_, i) => i);
+
+        const opacity = position.interpolate({
+          inputRange,
+          outputRange: inputRange.map((i) => (i === index ? 1 : 0.4)),
+        });
+
+        // const color =
+
+        return (
+          <Background
+            bottomColor={theme.colors.primaryContainer}
+            topColor={theme.colors.background}
+            style={{ width: '50%', height: 70 }}
+          >
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              accessibilityLabel={options.tabBarAccessibilityLabel}
+              testID={options.tabBarTestID}
+              onPress={onPress}
+              onLongPress={onLongPress}
+              style={{
+                // borderTopRightRadius: 50,
+                // borderTopLeftRadius: 50,
+                // borderWidth: 1,
+                // borderBottomWidth: 0,
+                // padding: 15,
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Animated.Text
+                style={{ opacity, fontSize: 20, fontWeight: '500' }}
+              >
+                {label}
+              </Animated.Text>
+            </TouchableOpacity>
+          </Background>
+        );
+      })}
+    </View>
   );
 }
 

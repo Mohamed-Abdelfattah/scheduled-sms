@@ -46,7 +46,7 @@ export default function SelectRules({ repeat, every, callbackFn }) {
           color={repeat ? theme.colors.primary : theme.colors.error}
           uncheckedColor="red"
           onPress={() => {
-            callbackFn({ repeat: true, repeatEvery: every });
+            callbackFn({ rules: { repeat: true, repeatEvery: every } });
           }}
         />
         <View
@@ -88,20 +88,22 @@ export default function SelectRules({ repeat, every, callbackFn }) {
               }}
             >
               {choices.map((choice, index) => (
-                <>
+                <View key={choice.value}>
                   <Menu.Item
                     key={choice.value + index}
                     title={choice.label}
                     //   dense
                     onPress={() => {
-                      callbackFn({ repeatEvery: choice.value });
+                      callbackFn({
+                        rules: { repeat: true, repeatEvery: choice.value },
+                      });
                       setVisible(false);
                     }}
                   />
                   {index !== choices.length - 1 && (
-                    <Divider key={choice.value} />
+                    <Divider key={choice.value + (index + 100)} />
                   )}
-                </>
+                </View>
               ))}
             </Menu>
           </View>
@@ -116,7 +118,7 @@ export default function SelectRules({ repeat, every, callbackFn }) {
           status={!repeat ? 'checked' : 'indeterminate'}
           color={!repeat ? theme.colors.primary : theme.colors.error}
           onPress={() => {
-            callbackFn({ repeat: false, repeatEvery: every });
+            callbackFn({ rules: { repeat: false, repeatEvery: every } });
           }}
           //   style={{ borderWidth: 1 }}
         />

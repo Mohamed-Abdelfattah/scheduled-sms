@@ -89,10 +89,6 @@ export const getVariant = (inCase) => {
 
 const Description = ({ variant, data }) => {
   // query to get message info, as the messages are loaded in the global app state the required message will be selected from the state
-  const msgInfo = {
-    contactName: data.messageId + '--Name',
-    contactNumber: data.messageId + '--Number',
-  };
 
   const { state } = useAppStateContext();
   const message = state.messages.find((el) => el.id === data.messageId);
@@ -113,7 +109,7 @@ const Description = ({ variant, data }) => {
         // style={{ flex: 1 }}
         >
           <Text style={[styleText, styles.heading]}>
-            <Text style={styles.bold}>{data.messageTitle}</Text>You clicked the
+            <Text style={styles.bold}>{message.title}</Text>You clicked the
             notification and got directed to sms messenger app successfully
           </Text>
         </View>
@@ -130,8 +126,8 @@ const Description = ({ variant, data }) => {
     return (
       <>
         <Text style={[styleText, styles.heading]}>
-          <Text style={styles.bold}>{data.messageTitle}</Text> was not sent.
-          Error occurred while sending!
+          <Text style={styles.bold}>{message.title}</Text> was not sent. Error
+          occurred while sending!
         </Text>
         <Hr color={colors[variant].border} marginV={8} />
         <Text style={styleText}>On: {data.sentOn.toLocaleString()}</Text>
@@ -143,8 +139,8 @@ const Description = ({ variant, data }) => {
     return (
       <>
         <Text style={[styleText, styles.heading]}>
-          <Text style={styles.bold}>{data.messageTitle}</Text> needs your
-          permission to be sent, press on me to proceed.
+          <Text style={styles.bold}>{message.title}</Text> needs your permission
+          to be sent, press on me to proceed.
         </Text>
         <Hr color={colors[variant].border} marginV={8} />
         <Text style={styleText}>Sent on: {data.sentOn.toLocaleString()}</Text>
@@ -155,9 +151,8 @@ const Description = ({ variant, data }) => {
   return (
     <>
       <Text style={[styleText, styles.heading]}>
-        <Text style={styles.bold}>{data.messageTitle}</Text> is scheduled to be
-        sent later, when it's time to send you will be notified to send the
-        message.
+        <Text style={styles.bold}>{message.title}</Text> is scheduled to be sent
+        later, when it's time to send you will be notified to send the message.
       </Text>
       <Hr color={colors[variant].border} marginV={8} />
 

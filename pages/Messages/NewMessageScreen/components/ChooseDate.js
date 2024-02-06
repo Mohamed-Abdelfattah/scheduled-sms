@@ -1,4 +1,5 @@
-import { View, Text, Platform } from 'react-native';
+import { View, Platform } from 'react-native';
+import { Text, useTheme, MD3Colors } from 'react-native-paper';
 import { useState } from 'react';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import ButtonPrimaryOutline from '../shared/Button';
@@ -44,6 +45,7 @@ const MONTHS_SHORT = [
 export default function ChooseDate({ dateProp, applyChoiceCallback }) {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
+
   // const [selected, setSelected] = useState(new Date());
   const selectedDate = dateProp ? new Date(dateProp) : new Date();
   selectedDate.setUTCSeconds(0);
@@ -123,10 +125,16 @@ export default function ChooseDate({ dateProp, applyChoiceCallback }) {
 
   return (
     <>
-      <Text>
+      <Text
+        variant="bodyLarge"
+        style={[
+          { paddingBottom: 5, textAlign: 'center' },
+          !dateProp && { color: MD3Colors.error50 },
+        ]}
+      >
         {dateProp ? dateProp.toLocaleString() : 'No Date was selected'}
       </Text>
-      <View style={{ flexDirection: 'row' }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
         <ButtonPrimaryOutline label="Select Date" onPress={showDatePicker} />
         <ButtonPrimaryOutline label="Select Time" onPress={showTimePicker} />
       </View>

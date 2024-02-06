@@ -36,12 +36,13 @@ export default function AddRecipient({ addRecipientCallback }) {
           style={{
             width: '100%',
             flexDirection: 'row',
-            alignItems: 'center',
+            alignItems: 'flex-end',
             justifyContent: 'space-around',
+            paddingTop: 10,
           }}
         >
-          <View>
-            <Text>OR </Text>
+          <View style={{ alignSelf: 'center', paddingTop: 7 }}>
+            <Text>OR</Text>
           </View>
           <View>
             <TextInput

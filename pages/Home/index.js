@@ -1,16 +1,16 @@
 import { View, ScrollView, FlatList, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import ButtonPrimaryOutline from '../components/shared/Button';
-import NotificationCard from '../components/NotificationCard';
-import MessageCard from '../components/MessageCard';
-import Hr from '../components/shared/Hr';
+import ButtonPrimaryOutline from '../../components/shared/Button';
+import NotificationCard from '../../components/NotificationCard';
+import MessageCard from '../../components/MessageCard';
+import Hr from '../../components/shared/Hr';
 import { CommonActions, StackActions } from '@react-navigation/native';
-import { useAppStateContext } from '../store/context';
+import { useAppStateContext } from '../../store/context';
 import MessageCardPaper from '../components/MessagesScreen/MessageCardPaper';
-import WavingHandSvg from '../assets/WavingHand';
-import { Card, Text, Surface, useTheme } from 'react-native-paper';
+import WavingHandSvg from '../../assets/WavingHand';
+import { Card, Text, Surface, useTheme, Button, FAB } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import EmptyEventsListComponent from '../components/EmptyEventsListComponent';
+import EmptyEventsListComponent from '../../components/EmptyEventsListComponent';
 import ListEmptyComponent from '../components/MessagesScreen/ListEmptyComponent';
 
 export default function HomeScreen({ navigation }) {
@@ -50,8 +50,32 @@ export default function HomeScreen({ navigation }) {
       <View>
         <View style={styles.heading}>
           <Text style={styles.headingText}>Notifications</Text>
-          <ButtonPrimaryOutline label="More" icon="message-bookmark" />
+
+          <View style={styles.headingActions}>
+            {/* <ButtonPrimaryOutline label="More" icon="message-bookmark" /> */}
+
+            {/* <Button
+              mode="elevated"
+              icon="message-bookmark"
+              onPress={() => {
+                console.log('kokok');
+              }}
+            >
+              MORE
+            </Button> */}
+
+            <FAB
+              customSize={38}
+              label="MORE"
+              icon="message-star"
+              variant="surface"
+              onPress={() => {
+                /**should navigate to the events page with view/filter of only upcoming events  */
+              }}
+            />
+          </View>
         </View>
+
         <FlatList
           data={upcoming}
           // data={state.events}
@@ -70,15 +94,96 @@ export default function HomeScreen({ navigation }) {
             />
           }
           centerContent
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingBottom: 20,
+            paddingTop: 10,
+          }}
         />
       </View>
 
       <Hr marginV={10} color="#333" marginH={5} />
 
-      <View style={styles.messages}>
+      <View>
         <View style={styles.heading}>
           <Text style={styles.headingText}>Messages</Text>
-          <View style={{ flexDirection: 'row' }}>
+          <View style={styles.headingActions}>
+            {/*  <ButtonPrimaryOutline
+              label="ADD"
+              icon="message-plus"
+              onPress={() => {
+                // console.log('button was pressed ');
+                // navigation.navigate('Messages', { screen: 'New Message' });
+                navigation.navigate('Messages', {
+                  screen: 'Messages List',
+                  params: {
+                    navigateTo: 'createMessage',
+                  },
+                });
+              }}
+            />
+            <ButtonPrimaryOutline
+              label="MORE"
+              icon="message-bookmark"
+              onPress={() => {
+                navigation.navigate('Messages', {
+                  screen: 'Messages List',
+                  params: { navigateTo: '' },
+                });
+              }}
+            /> */}
+
+            {/* <Button
+              mode="elevated"
+              icon="message-plus"
+              onPress={() => {
+                console.log('kokok');
+              }}
+            >
+              ADD
+            </Button>
+            <Button
+              mode="elevated"
+              icon="message-plus"
+              onPress={() => {
+                console.log('kokok');
+              }}
+            >
+              MORE
+            </Button> */}
+
+            <FAB
+              customSize={38}
+              label="ADD"
+              icon="message-plus"
+              variant="surface"
+              onPress={() => {
+                // console.log('button was pressed ');
+                // navigation.navigate('Messages', { screen: 'New Message' });
+                navigation.navigate('Messages', {
+                  screen: 'Messages List',
+                  params: {
+                    navigateTo: 'createMessage',
+                  },
+                });
+              }}
+              style={{ marginEnd: 12 }}
+            />
+            <FAB
+              customSize={38}
+              label="MORE"
+              icon="message-star"
+              variant="surface"
+              onPress={() => {
+                navigation.navigate('Messages', {
+                  screen: 'Messages List',
+                  params: { navigateTo: '' },
+                });
+              }}
+            />
+          </View>
+
+          {/* <View style={{ flexDirection: 'row' }}>
             <ButtonPrimaryOutline
               label="ADD"
               icon="message-plus"
@@ -103,8 +208,9 @@ export default function HomeScreen({ navigation }) {
                 });
               }}
             />
-          </View>
+          </View> */}
         </View>
+
         <FlatList
           data={state.messages}
           contentContainerStyle={{
@@ -137,9 +243,41 @@ export default function HomeScreen({ navigation }) {
 
       <View>
         <View style={styles.heading}>
-          <Text style={styles.headingText}>Events</Text>
-          <ButtonPrimaryOutline label="More" icon="message-bookmark" />
+          {/* <View> */}
+          <Text style={[styles.headingText, { paddingEnd: 20 }]}>Events</Text>
+          {/* </View> */}
+
+          <View style={styles.headingActions}>
+            {/* <ButtonPrimaryOutline label="More" icon="message-bookmark" /> */}
+
+            {/* <Button
+              mode="elevated"
+              icon="message-bookmark"
+              onPress={() => {
+                console.log('kokok');
+              }}
+            >
+              MORE
+            </Button> */}
+
+            <FAB
+              customSize={38}
+              label="MORE"
+              icon="calendar-star"
+              variant="surface"
+              onPress={() => {
+                /**should navigate to the events page with view/filter of All events  */
+                // console.log('button was pressed ');
+                // navigation.navigate('Messages', { screen: 'New Message' });
+                navigation.navigate('Events', {
+                  screen: 'Messages List',
+                  params: { navigateTo: '' },
+                });
+              }}
+            />
+          </View>
         </View>
+
         <FlatList
           // data={upcoming}
           data={state.events}
@@ -157,6 +295,7 @@ export default function HomeScreen({ navigation }) {
             />
           }
           centerContent
+          contentContainerStyle={{ paddingHorizontal: 20 }}
         />
       </View>
     </ScrollView>
@@ -173,7 +312,8 @@ const styles = StyleSheet.create({
   heading: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'baseline',
+    alignItems: 'center',
+    paddingTop: 10,
     // flex: 1,
   },
 
@@ -183,6 +323,15 @@ const styles = StyleSheet.create({
     margin: 5,
     marginVertical: 10,
     fontWeight: 'bold',
+    paddingStart: 5,
+  },
+
+  headingActions: {
+    paddingEnd: 12,
+    // paddingHorizontal: 5,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    flex: 1,
   },
 });
 

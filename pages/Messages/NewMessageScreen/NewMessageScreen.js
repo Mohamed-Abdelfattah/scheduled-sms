@@ -15,11 +15,11 @@ import {
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-import ButtonPrimaryOutline from '../components/shared/Button';
+import ButtonPrimaryOutline from '../../../components/shared/Button';
 import Rules from '../components/NewMessageScreen/Rules';
 import Recipients from '../components/NewMessageScreen/Recipients';
 import * as SMS from 'expo-sms';
-import { useAppStateContext } from '../store/context';
+import { useAppStateContext } from '../../../store/context';
 
 export default function NewMessageScreen({ navigation, route }) {
   //
@@ -139,21 +139,6 @@ export default function NewMessageScreen({ navigation, route }) {
 
               const validSendingTime = new Date(Date.now() + 2 * 60000);
               validSendingTime.setSeconds(0);
-              // console.log(
-              //   'date.now =',
-              //   new Date(),
-              //   'comparing sendingTime:',
-              //   state.messageFormData.sendingDate.toLocaleString(),
-              //   '=',
-              //   state.messageFormData.sendingDate.getTime(),
-              //   'with now + 2 minutes:',
-              //   '=',
-              //   validSendingTime.getTime(),
-              //   validSendingTime.toLocaleString(),
-              //   state.messageFormData.sendingDate.getTime() <
-              //     validSendingTime.getTime()
-              // );
-              // validate time/date choice and alert user to choose date in the future (at least 2 minutes after the moment the button was pressed)
               if (state.messageFormData.sendingDate < validSendingTime) {
                 // alert
                 createOneButtonAlert();
@@ -175,10 +160,11 @@ export default function NewMessageScreen({ navigation, route }) {
   );
 }
 
-function createOneButtonAlert(id, callback) {
+function createOneButtonAlert() {
   Alert.alert(
     'Sending Time!',
-    'Please choose a sending date/time that at least 2 minutes after now.',
+    'Please select a sending date/time that is at least 2 minutes later than the current time.',
+
     [
       {
         text: 'Close',

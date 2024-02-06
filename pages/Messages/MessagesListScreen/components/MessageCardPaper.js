@@ -9,6 +9,7 @@ import {
   Text,
   useTheme,
 } from 'react-native-paper';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 export default function MessageCardPaper({ item }) {
@@ -44,13 +45,33 @@ export default function MessageCardPaper({ item }) {
       }}
     >
       <View style={{ flex: 1, justifyContent: 'space-between' }}>
-        <Text variant="titleLarge" style={{ textAlign: 'center', padding: 15 }}>
-          {title}
-        </Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <View style={{}}>
+            {/* todo: icon name will be "whatsapp" or "sms" depending on the messageType from the db upon adding whatsapp feature */}
+            <FontAwesome5 name="sms" size={24} color={theme.colors.primary} />
+          </View>
 
-        <Text variant="bodyLarge" style={{ textAlign: 'center' }}>
-          {content.length > 100 ? content.slice(0, 100) + '....' : content}
-        </Text>
+          <View style={{}}>
+            <Text
+              variant="titleLarge"
+              style={{ textAlign: 'center', padding: 15 }}
+            >
+              {title}
+            </Text>
+          </View>
+        </View>
+
+        <View>
+          <Text variant="bodyLarge" style={{ textAlign: 'center' }}>
+            {content.length > 100 ? content.slice(0, 100) + '....' : content}
+          </Text>
+        </View>
 
         {/* <Divider horizontalInset /> */}
 
@@ -86,12 +107,13 @@ export default function MessageCardPaper({ item }) {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'center',
+            justifyContent: 'space-evenly',
             paddingBottom: 15,
           }}
         >
           <MaterialCommunityIcons
-            name="clock-check-outline"
+            name="email-fast-outline"
+            // name="message-text-clock-outline"
             size={24}
             color={theme.colors.primary}
           />
@@ -105,11 +127,11 @@ export default function MessageCardPaper({ item }) {
           >
             {sendingDate.toDateString()}, {sendingDate.toLocaleTimeString()}
           </Text>
-          <MaterialCommunityIcons
-            name="email-fast-outline"
+          {/* <MaterialCommunityIcons
+            name="clock-check-outline"
             size={24}
             color={theme.colors.primary}
-          />
+          /> */}
         </View>
       </View>
     </Card>

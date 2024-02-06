@@ -12,7 +12,7 @@ import { Text } from 'react-native-paper';
 import * as Contacts from 'expo-contacts';
 
 import Hr from '../shared/Hr';
-import ContactCard from '../NewMessageScreen/ContactCard';
+import ContactCard from '../../NewMessageScreen/components/ContactCard';
 import ButtonPrimaryOutline from '../shared/Button';
 import ContactCardPaper from './ContactCardPaper';
 
